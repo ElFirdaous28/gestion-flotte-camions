@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+
+# Env files
+.env
+*.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# Build folders
+dist/
+build/
+
+# Mac / VSCode / IDE files
+.DS_Store
+.vscode/
+.idea/
+
+coverage/
