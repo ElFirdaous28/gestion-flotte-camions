@@ -65,8 +65,8 @@ export const login = async (req, res, next) => {
     const { accessToken, refreshToken } = generateTokens(user);
     const decoded = jwt.decode(refreshToken);
 
-    // delete any old refresh tokens (optional cleanup)
-    await RefreshToken.deleteMany({ user: user._id });
+    // // delete any old refresh tokens
+    // await RefreshToken.deleteMany({ user: user._id });
 
     // store new token
     await RefreshToken.create({
@@ -142,7 +142,6 @@ export const logout = async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'none',
-    secure: true,
   });
 
   res.status(200).json({ message: 'Logged out successfully' });
