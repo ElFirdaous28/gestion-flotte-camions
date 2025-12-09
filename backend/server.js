@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import { connectDB } from './config/db.js';
 import config from './config/config.js';
 import authRoutes from './routes/auth.routes.js';
+import errorHandler from './middlewares/error.middleware.js';
 
 
 const app = express();
@@ -24,3 +25,5 @@ app.listen(PORT, () => {
 });
 
 app.use('/api/auth', authRoutes);
+
+app.use(errorHandler)
