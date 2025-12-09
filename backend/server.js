@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { connectDB } from './config/db.js';
-import config from './config/config.js'; // This will load env vars automatically
+import config from './config/config.js';
+import authRoutes from './routes/auth.routes.js';
+
 
 const app = express();
 const PORT = config.PORT || 3000;
@@ -20,3 +22,5 @@ connectDB();
 app.listen(PORT, () => {
     console.log(`Server running on http://127.0.0.1:${PORT} in ${config.NODE_ENV} mode`);
 });
+
+app.use('/api/auth', authRoutes);
