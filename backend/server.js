@@ -18,5 +18,5 @@ connectDB();
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT} in ${config.NODE_ENV} mode`);
+    console.log(`Server running on http://127.0.0.1:${PORT} in ${config.NODE_ENV} mode`);
 });
