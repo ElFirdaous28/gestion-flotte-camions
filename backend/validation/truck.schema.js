@@ -16,14 +16,14 @@ export const createTruckSchema = yup.object({
         .min(0, 'Kilometers cannot be negative')
         .default(0),
 
-    purchaseDate: yup.date().optional(),
+    purchaseDate: yup.date().required(),
 
     lastMaintenance: yup.date().optional(),
 
     towingCapacity: yup
         .number()
-        .min(0, 'Towing capacity cannot be negative')
-        .optional(),
+        .required()
+        .min(0, 'Towing capacity cannot be negative'),
 
     status: yup
         .string()

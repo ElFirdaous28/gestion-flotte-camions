@@ -5,16 +5,17 @@ import isAuthenticated from '../middlewares/auth.middleware.js';
 import authorizedRoles from '../middlewares/authorize.middleware.js';
 import validate from '../middlewares/validate.middleware.js';
 import { createTruckSchema, updateTruckSchema, updateTruckStatusSchema } from '../validation/truck.schema.js';
+import validateObjectId from '../middlewares/objectId.middelware.js';
 
 const router = express.Router();
 
 router.use(isAuthenticated);
 
 router.get('/', authorizedRoles('admin'), getTrucks);
-router.get('/:id', getTruck);
+router.get('/:id', validateObjectId(), getTruck);
 router.post('/', authorizedRoles('admin'), validate(createTruckSchema), createTruck);
-router.patch('/:id', authorizedRoles('admin'), validate(updateTruckSchema), updateTruck);
-router.delete('/:id', authorizedRoles('admin'), deleteTruck);
-router.patch('/:id/status', authorizedRoles('admin'), validate(updateTruckStatusSchema), updateTruckStatus);
+router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(updateTruckSchema), updateTruck);
+router.delete('/:id', validateObjectId(), authorizedRoles('admin'), deleteTruck);
+router.patch('/:id/status', validateObjectId(), validate(updateTruckStatusSchema), updateTruckStatus);
 
 export default router;
