@@ -18,6 +18,6 @@ router.get('/', authorizedRoles('admin'), getUsers);
 router.get('/:id', authorizedRoles('admin'), getUserById);
 router.delete('/:id', ownerOrAdmin(User), deleteUser);
 router.patch('/:id', ownerOrAdmin(User), validate(updateUserSchema), uploadAvatar.single('avatar'), updateUser);
-router.put('/change-password/:id', isAuthenticated, validate(changePasswordSchema), changePassword);
+router.patch('/change-password/:id', isAuthenticated, validate(changePasswordSchema), changePassword);
 
 export default router;

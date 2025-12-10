@@ -5,6 +5,7 @@ import { connectDB } from './config/db.js';
 import config from './config/config.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js'
+import TruckRoutes from './routes/truck.routes.js'
 import errorHandler from './middlewares/error.middleware.js';
 
 
@@ -27,5 +28,6 @@ app.listen(PORT, () => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/trucks', TruckRoutes);
 
 app.use(errorHandler)
