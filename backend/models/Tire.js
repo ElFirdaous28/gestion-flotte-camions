@@ -7,7 +7,6 @@ const tireSchema = new mongoose.Schema({
     position: {
         type: String,
         enum: ['front-left', 'front-right', 'rear-left', 'rear-right', 'middle-left', 'middle-right'],
-        required: true
     },
 
     brand: { type: String },
@@ -16,8 +15,14 @@ const tireSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ['new', 'used', 'needs-replacement'],
-        default: 'new'
+        enum: [
+            'stock',             // new tire in stock
+            'mounted',           // currently installed on a vehicle
+            'used',              // removed but still usable
+            'needs_replacement', // worn, must be replaced soon
+            'out_of_service'     // unusable / defective
+        ],
+        default: 'stock'
     },
 
     lastMaintenance: { type: Date },
@@ -28,12 +33,17 @@ const tireSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// Ensure tire belongs to exactly one vehicle (truck OR trailer)
-tireSchema.pre('save', function (next) {
-    if ((this.truck && this.trailer) || (!this.truck && !this.trailer)) {
-        return next(new Error('Tire must belong to exactly one truck or one trailer.'));
+tireSchema.pre('save', function () {
+    // at tire can not belong to both trailer and truck at one time
+    if (this.truck && this.trailer) {
+        throw new Error('A tire cannot be assigned to both a truck and a trailer.');
     }
-    next();
+    // if status is monte or use then tire sould be assigned to a truck or trailer
+    const assignedStatuses = ['monte', 'use'];
+
+    if (assignedStatuses.includes(this.status) && (!this.truck && !this.trailer)) {
+        throw new Error(`A tire with status '${this.status}' must be assigned to a vehicle.`);
+    }
 });
 
 export default mongoose.model('Tire', tireSchema);
