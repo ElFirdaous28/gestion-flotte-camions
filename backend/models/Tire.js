@@ -13,6 +13,8 @@ const tireSchema = new mongoose.Schema({
     size: { type: String },      // e.g., "295/75 R22.5"
     status: { type: String, enum: ['new', 'used', 'needs-replacement'], default: 'new' },
     lastMaintenance: { type: Date },
+    // start date use
+    // km
 }, { timestamps: true });
 
 // Custom validation: tire must belong to exactly one vehicle (truck OR trailer)

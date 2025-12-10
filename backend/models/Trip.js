@@ -12,6 +12,7 @@ const tripSchema = new mongoose.Schema({
     plannedFuel: Number,   // <-- new: liters planned for the trip
     fuelStart: Number, // liters at trip start
     fuelEnd: Number,   // liters at trip end
+    // km
     notes: String,
 }, { timestamps: true });
 

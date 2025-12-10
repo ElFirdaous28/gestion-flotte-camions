@@ -7,7 +7,14 @@ const errorHandler = (err, req, res, next) => {
   // Handle Yup validation errors
   if (err.name === "ValidationError" && err.errors) {
     statusCode = 400;
-    message = err.errors.join(", ");
+
+    if (Array.isArray(err.errors)) {
+      message = err.errors.join(", ");
+    } else if (typeof err.errors === "object") {
+      message = Object.values(err.errors).map(e => e.message || e).join(", ");
+    } else {
+      message = err.message;
+    }
   }
 
   // Mongoose bad ObjectId
