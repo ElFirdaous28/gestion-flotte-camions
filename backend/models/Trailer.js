@@ -7,7 +7,7 @@ const trailerSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ['available', 'on_trip', 'maintenance', 'unavailable'],
+        enum: ['available', 'unavailable', 'on_trip', 'maintenance'],
         default: 'available'
     },
 

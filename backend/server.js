@@ -7,8 +7,8 @@ import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import TruckRoutes from './routes/truck.routes.js';
 import TrailerRoutes from './routes/trailer.routes.js';
+import TripRoutes from './routes/trip.routes.js';
 import errorHandler from './middlewares/error.middleware.js';
-
 
 const app = express();
 const PORT = config.PORT || 3000;
@@ -31,5 +31,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/trucks', TruckRoutes);
 app.use('/api/trailers', TrailerRoutes);
+app.use('/api/trips', TripRoutes);
 
 app.use(errorHandler)
