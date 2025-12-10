@@ -13,6 +13,8 @@ const tripSchema = new mongoose.Schema({
     fuelStart: Number, // liters at trip start
     fuelEnd: Number,   // liters at trip end
     // km
+    // type
+    // descirption poid....
     notes: String,
 }, { timestamps: true });
 
