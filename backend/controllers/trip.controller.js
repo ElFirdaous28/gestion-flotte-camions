@@ -81,7 +81,7 @@ export const deleteTrip = async (req, res, next) => {
 
 export const startTrip = async (req, res, next) => {
     try {
-        const { fuelStart, kmStart } = req.body;
+        const { fuelStart } = req.body;
 
         // Find trip
         const trip = await Trip.findById(req.params.id);
@@ -92,10 +92,14 @@ export const startTrip = async (req, res, next) => {
             return res.status(400).json({ message: 'Only trips with status "to-do" can be started' });
         }
 
+        const truck = await Truck.findById(trip.truck);
+
+        if (!truck) return res.status(404).json({ message: 'Truck not found' });
+
         // Update trip
         trip.status = 'in-progress';
         trip.fuelStart = fuelStart;
-        trip.kmStart = kmStart;
+        trip.kmStart = truck.km;
 
         await trip.save();
 
@@ -119,18 +123,18 @@ export const completeTrip = async (req, res, next) => {
         if (trip.status !== 'in-progress') {
             return res.status(400).json({ message: "Only trips with status 'in-progress' can be completed" });
         }
-        
+
         // update trip
         trip.status = 'completed';
         trip.fuelEnd = fuelEnd;
         trip.kmEnd = kmEnd;
         if (notes) trip.notes = notes;
-        
+
         await trip.save();
-        
+
         await Truck.findByIdAndUpdate(trip.truck, { status: 'available' });
         await Trailer.findByIdAndUpdate(trip.trailer, { status: 'available' });
-        
+
         const distance = kmEnd - trip.kmStart; // trip distance
         await updateTruckAndTiresKm(trip.truck, distance);
         res.status(200).json(trip);

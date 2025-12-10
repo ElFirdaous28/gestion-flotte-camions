@@ -7,9 +7,7 @@ export const updateTruckAndTiresKm = async (truckId, distance) => {
     if (!truck) throw new Error('Truck not found');
 
     truck.km += distance;
-    await truck.save();
-    console.log(truck);
-    
+    await truck.save();    
 
     // Update all tires on this truck
     await Tire.updateMany({ truck: truckId }, { $inc: { km: distance } });

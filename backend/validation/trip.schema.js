@@ -12,7 +12,7 @@ export const TripSchema = yup.object({
 
     trailer: yup
         .string()
-        .required('Truck is required')
+        .required('Trailer is required')
         .test('is-objectid', 'Invalid trailer ID', value => !value || mongoose.Types.ObjectId.isValid(value)),
 
     driver: yup
@@ -38,7 +38,6 @@ export const TripSchema = yup.object({
     fuelStart: yup.number().min(0).nullable(),
     fuelEnd: yup.number().min(0).nullable(),
 
-    kmStart: yup.number().min(0).nullable(),
     kmEnd: yup.number().min(0).nullable(),
 
     type: yup.string().oneOf(tripTypes).default('delivery'),
@@ -52,10 +51,6 @@ export const StartTripSchema = yup.object({
         .number()
         .required('fuelStart is required')
         .min(0, 'fuelStart must be >= 0'),
-    kmStart: yup
-        .number()
-        .required('kmStart is required')
-        .min(0, 'kmStart must be >= 0'),
 });
 
 export const CompleteTripSchema = yup.object({
