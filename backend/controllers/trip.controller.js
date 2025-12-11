@@ -3,7 +3,6 @@ import Trip from '../models/Trip.js';
 import Truck from '../models/Truck.js';
 import { updateTruckAndTiresKm } from '../services/updateTruckAndTiresKm.js';
 import { validateTripResources } from '../services/validateTripResources.js';
-import PDFDocument from 'pdfkit';
 
 export const getTrips = async (req, res, next) => {
     try {
