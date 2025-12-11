@@ -10,6 +10,7 @@ const tripSchema = new mongoose.Schema({
 
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+    actualEndDate: { type: Date },
 
     status: {
         type: String,
@@ -29,7 +30,7 @@ const tripSchema = new mongoose.Schema({
         enum: ['delivery', 'pickup', 'transfer', 'other'],
         default: 'delivery'
     },
-    
+
     cargoWeight: { type: Number, min: 0 },
     description: { type: String },
     notes: { type: String }
