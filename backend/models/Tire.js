@@ -34,15 +34,18 @@ const tireSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 tireSchema.pre('save', function () {
-    // at tire can not belong to both trailer and truck at one time
+    // a tire can not belong to both trailer and truck at one time
     if (this.truck && this.trailer) {
         throw new Error('A tire cannot be assigned to both a truck and a trailer.');
     }
-    // if status is monte or use then tire sould be assigned to a truck or trailer
-    const assignedStatuses = ['monte', 'use'];
+    // if tire is assigned to a vehicle, status must be 'mounted' or 'used' or 'needs_replacement'
+    if ((this.truck || this.trailer) && !['mounted', 'used', 'needs_replacement'].includes(this.status)) {
+        this.status = 'mounted'; // default to mounted
+    }
 
-    if (assignedStatuses.includes(this.status) && (!this.truck && !this.trailer)) {
-        throw new Error(`A tire with status '${this.status}' must be assigned to a vehicle.`);
+    // if tire is not assigned to a vehicle, cannot be mounted or used 
+    if (!(this.truck || this.trailer) && ['mounted', 'used'].includes(this.status)) {
+        throw new Error(`A tire with status '${this.status}' must be assigned to a truck or trailer.`);
     }
 });
 

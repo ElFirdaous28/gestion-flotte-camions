@@ -32,6 +32,8 @@ export const TripSchema = yup.object({
             return startDate && value && new Date(value) > new Date(startDate);
         }),
 
+    actualEndDate: yup.date().optional,
+
     status: yup.string().oneOf(tripStatus).default('to-do'),
 
     plannedFuel: yup.number().min(0).nullable(),
@@ -62,5 +64,9 @@ export const CompleteTripSchema = yup.object({
         .number()
         .required('kmEnd is required')
         .min(0, 'kmEnd must be >= 0'),
+    actualEndDate: yup
+        .date()
+        .required('Actual End Date is required')
+        .typeError('actualEndDate must be a valid date'),
     notes: yup.string().nullable(),
 });

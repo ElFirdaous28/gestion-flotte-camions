@@ -4,7 +4,8 @@ import {
     getMaintenanceRecords,
     getMaintenanceRecord,
     updateMaintenanceRecord,
-    deleteMaintenanceRecord
+    deleteMaintenanceRecord,
+    getMaintenanceRecordsVehicle
 } from '../controllers/maintenanceRecord.controller.js';
 
 import isAuthenticated from '../middlewares/auth.middleware.js';
@@ -17,6 +18,7 @@ const router = express.Router();
 router.use(isAuthenticated);
 
 router.get('/', authorizedRoles('admin'), getMaintenanceRecords);
+router.get('/vehicle', getMaintenanceRecordsVehicle);
 router.get('/:id', validateObjectId(), getMaintenanceRecord);
 router.post('/', authorizedRoles('admin'), validate(MaintenanceRecordSchema), createMaintenanceRecord);
 router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(MaintenanceRecordSchema), updateMaintenanceRecord);
