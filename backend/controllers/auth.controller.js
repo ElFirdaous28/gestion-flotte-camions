@@ -37,7 +37,6 @@ const setRefreshCookie = (res, refreshToken) => {
 const sendUserResponse = (res, user, accessToken) => {
   res.status(200).json({
     message: 'Success',
-    data: {
       accessToken,
       user: {
         id: user._id,
@@ -45,7 +44,6 @@ const sendUserResponse = (res, user, accessToken) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-      },
     },
   });
 };
