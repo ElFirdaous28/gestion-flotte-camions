@@ -3,6 +3,7 @@ import Trip from '../models/Trip.js';
 import Truck from '../models/Truck.js';
 import { updateTruckAndTiresKm } from '../services/updateTruckAndTiresKm.js';
 import { validateTripResources } from '../services/validateTripResources.js';
+import PDFDocument from 'pdfkit';
 
 export const getTrips = async (req, res, next) => {
     try {
@@ -128,6 +129,7 @@ export const completeTrip = async (req, res, next) => {
         trip.status = 'completed';
         trip.fuelEnd = fuelEnd;
         trip.kmEnd = kmEnd;
+        trip.actualEndDate = new Date(actualEndDate); 
         if (notes) trip.notes = notes;
 
         await trip.save();
