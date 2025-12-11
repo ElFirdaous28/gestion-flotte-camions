@@ -16,8 +16,3 @@ export const FuelEntrySchema = yup.object({
         .string()
         .required('Invoice serial is required')
 });
-
-export const UpdateFuelEntrySchema = yup.object({
-    amount: yup.number().min(0),
-    invoiceSerial: yup.string()
-});

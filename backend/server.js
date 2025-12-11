@@ -10,6 +10,7 @@ import TrailerRoutes from './routes/trailer.routes.js';
 import TripRoutes from './routes/trip.routes.js';
 import TireRoutes from './routes/tire.routes.js';
 import FuelRoutes from './routes/fuelEntry.routes.js';
+import MaintenanceRuleRoutes from './routes/maintenanceRule.routes.js';
 import errorHandler from './middlewares/error.middleware.js';
 
 const app = express();
@@ -36,5 +37,6 @@ app.use('/api/trailers', TrailerRoutes);
 app.use('/api/trips', TripRoutes);
 app.use('/api/tires', TireRoutes);
 app.use('/api/fuel', FuelRoutes);
+app.use('/api/maintenance-rules', MaintenanceRuleRoutes);
 
 app.use(errorHandler)
