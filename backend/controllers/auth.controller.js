@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import RefreshToken from '../models/RefreshToken.js';
 
-const ACCESS_TOKEN_EXP = '30m';
+const ACCESS_TOKEN_EXP = '1d';
 const REFRESH_TOKEN_EXP = '7d';
 
 // generate access + refresh tokens

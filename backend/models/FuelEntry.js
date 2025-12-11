@@ -1,10 +1,12 @@
 import mongoose from 'mongoose';
 
-const fuelLogSchema = new mongoose.Schema({
+const fuelEntrySchema = new mongoose.Schema({
     trip: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip', required: true },
     amount: Number, // liters
-    invoiceUrl: { type: String },// onlyyyyyyyyyyyyyyyyyyyyyyy image!!!!!!   or onlyyy invoice id
-    invoiceType: { type: String, enum: ['pdf', 'image'] }
+    invoiceSerial: { type: String, required: true },
+
 }, { timestamps: true });
 
-export default mongoose.model('FuelLog', fuelLogSchema);
+fuelEntrySchema.index({ trip: 1, invoiceSerial: 1 }, { unique: true });
+
+export default mongoose.model('FuelEntry', fuelEntrySchema);
