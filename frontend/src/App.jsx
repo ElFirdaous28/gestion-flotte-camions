@@ -1,10 +1,30 @@
-function App() {
+import AppRoutes from './routes/AppRoutes';
+import { lazy, Suspense } from 'react';
 
+const ToastContainer = lazy(() =>
+  import('react-toastify').then((module) => ({ default: module.ToastContainer }))
+);
+
+function App() {
   return (
     <>
-     <h1 className='bg-red-500 text-white'>tailwind test</h1>
+      <AppRoutes />
+
+      <Suspense fallback={null}>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+      </Suspense>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -5,20 +5,20 @@
 /* Define base CSS variables that change based on theme */
 :root {
   /* Brand Colors */
-  --color-primary: #facc15;
-  --color-secondary: #229022;
-  
+  --color-primary: #17722f;
+  --color-secondary: #facc15;
+
   /* Background Colors */
   --color-background: #ffffff;
   --color-surface: #f2f2f2;
-  
+
   /* Text Colors */
   --color-text: #000000;
   --color-text-muted: #6b7280;
-  
+
   /* Border Colors */
   --color-border: #e5e7eb;
-  
+
   /* State Colors (optional, can add later) */
   --color-success: #229022;
   --color-warning: #facc15;
@@ -38,24 +38,25 @@
   /* Brand */
   --color-primary: var(--color-primary);
   --color-secondary: var(--color-secondary);
-  
+
   /* Backgrounds */
   --color-background: var(--color-background);
   --color-surface: var(--color-surface);
-  
+
   /* Text */
   --color-text: var(--color-text);
   --color-text-muted: var(--color-text-muted);
-  
+
   /* Border */
   --color-border: var(--color-border);
-  
+
   /* State */
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
 }
 
 @layer base {
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
