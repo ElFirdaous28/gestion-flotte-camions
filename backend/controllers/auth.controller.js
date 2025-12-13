@@ -27,7 +27,7 @@ const generateTokens = (user) => {
 const setRefreshCookie = (res, refreshToken) => {
   res.cookie('refresh_token', refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
@@ -37,13 +37,13 @@ const setRefreshCookie = (res, refreshToken) => {
 const sendUserResponse = (res, user, accessToken) => {
   res.status(200).json({
     message: 'Success',
-      accessToken,
-      user: {
-        id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
+    accessToken,
+    user: {
+      id: user._id,
+      fullname: user.fullname,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
     },
   });
 };
@@ -138,7 +138,7 @@ export const logout = async (req, res) => {
 
   res.clearCookie('refresh_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'none',
   });
 
