@@ -11,7 +11,7 @@
     dy="-6"
     font-size="140" 
     font-weight="800" 
-    fill="#FACC15" 
+    fill="#17722f" 
     text-anchor="middle" 
     dominant-baseline="central">
     T
@@ -22,7 +22,7 @@
     y="41%" 
     font-size="80" 
     font-weight="700" 
-    fill="#229022" 
+    fill="#FACC15" 
     dominant-baseline="hanging">
     K
   </text>

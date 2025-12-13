@@ -1,6 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { lazy, Suspense } from 'react';
+import Test from '../pages/app/Test';
+const Layout = lazy(() => import('../layout/Layout'));
 const Login = lazy(() => import('../pages/auth/Login'));
 const NotFound = lazy(() => import('../pages/app/NotFound'));
 
@@ -13,6 +15,11 @@ const AppRoutes = () => {
         <Routes>
           {/* Login route */}
           <Route path='/login' element={<Login />} />
+
+          {/* routes tking layou */}
+          <Route path="/" element={<Layout />}>
+            <Route path='/test' element={<Test />} />
+          </Route>
 
           {/* catche not unauthorized routes */}
           <Route path="/unauthorized" element="unauthorized" />

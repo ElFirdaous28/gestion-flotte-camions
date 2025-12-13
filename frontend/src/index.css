@@ -1,4 +1,9 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Zalando+Sans+Expanded:ital,wght@0,200..900;1,200..900&display=swap');
+
+body {
+  font-family: "Zalando Sans Expanded", sans-serif;
+}
 
 @variant dark (&:where(.dark, .dark *));
 
@@ -13,7 +18,7 @@
   --color-surface: #f2f2f2;
 
   /* Text Colors */
-  --color-text: #000000;
+  --color-text: #1F2937;
   --color-text-muted: #6b7280;
 
   /* Border Colors */
