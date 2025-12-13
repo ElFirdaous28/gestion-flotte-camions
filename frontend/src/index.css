@@ -60,6 +60,10 @@ body {
   --color-warning: var(--color-warning);
 }
 
+@theme {
+  --breakpoint-xs: 30rem;
+}
+
 @layer base {
 
   input:-webkit-autofill,

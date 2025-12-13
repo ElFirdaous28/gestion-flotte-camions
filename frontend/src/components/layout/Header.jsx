@@ -15,11 +15,19 @@ function Header({ toggleMobileMenu }) {
   return (
     <header className="bg-background border-b border-border shadow-sm h-20 shrink-0 z-30 relative">
       <nav className="w-full h-full px-4 lg:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={toggleMobileMenu} className="md:hidden p-2 hover:bg-surface rounded-md">
-            <Menu className="h-6 w-6 text-text" />
-          </button>
-          {!user && <Logo className="hidden md:flex" />}
+        <div className="flex items-center gap-1 md:gap-4">
+          {user &&
+            <button onClick={toggleMobileMenu} className="md:hidden p-2 hover:bg-surface rounded-md">
+              <Menu className="h-6 w-6 text-text" />
+            </button>
+          }
+
+          <div className="w-8 h-8 md:w-11 md:h-11 bg-primary rounded-lg shrink-0 flex items-center justify-center font-bold text-xl text-white">
+            <img className="w-10" src="/images/logo.svg" alt="logo" />
+          </div>
+          {!user &&
+            <Logo className="hidden md:flex" />
+          }
         </div>
 
         {/* Right section */}

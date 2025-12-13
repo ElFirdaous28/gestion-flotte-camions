@@ -1,6 +1,6 @@
 import React from "react";
 
-const Logo = ({ isExpanded = true, size = 'text-xl' }) => {
+const Logo = ({ isExpanded = true, size = 'text-sm md:text-xl' }) => {
   return (
     <div
       className={`
