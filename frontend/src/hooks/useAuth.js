@@ -48,7 +48,6 @@ export const useAuth = () => {
 
       // Invalidate queries that depend on the user
       queryClient.invalidateQueries(['auth']);
-      queryClient.invalidateQueries(['cart']);
     },
     onError: (error) => {
       console.error(error);

@@ -1,13 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
 
-function Logo({ className }) {
+const Logo = ({ isExpanded = true, size = 'text-xl' }) => {
   return (
-    <Link to="/" className={`flex justify-between items-center max-w-48 min-h-10 ${className}`}>
-      <img className="w-10" src="/logo.svg" alt="logo" />
-      <h1 className="text-3xl w-44 font-bold">E-Market</h1>
-    </Link>
+    <div
+      className={`
+        ${size}
+        font-semibold
+        whitespace-nowrap
+        tracking-wider
+        transition-all
+        duration-200
+        ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}
+      `}
+    >
+      <span className="text-primary">T</span>ruck
+      <span className="text-primary ml-1">F</span>leet
+    </div>
   );
-}
+};
 
 export default React.memo(Logo);

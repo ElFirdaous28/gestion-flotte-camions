@@ -76,7 +76,7 @@ function Footer() {
               Newsletter
             </p>
             <p className="mt-4 text-text-muted text-sm">Get special offers and updates.</p>
-            <button className="mt-4 bg-brand-green text-text px-5 py-2 rounded-lg font-semibold  border border-primary hover:bg-primary transition-colors text-sm">
+            <button className="mt-4 text-text px-5 py-2 rounded-lg font-semibold  border border-primary hover:bg-primary transition-colors text-sm">
               Sign Up
             </button>
           </div>

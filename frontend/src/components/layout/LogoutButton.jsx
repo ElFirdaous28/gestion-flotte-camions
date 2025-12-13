@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { LogOut } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../hooks/useAuth';
 
 const LogoutButton = () => {
   const { logout } = useAuth();
