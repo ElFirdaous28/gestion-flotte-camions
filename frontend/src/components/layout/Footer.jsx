@@ -9,7 +9,12 @@ function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           <div className="col-span-2 lg:col-span-2">
-            <Logo />
+            <div className="flex items-center">
+              <div className="w-8 h-8 md:w-11 md:h-11 bg-primary rounded-lg shrink-0 flex items-center justify-center font-bold text-xl text-white">
+                <img className="w-10" src="/images/logo.svg" alt="logo" />
+              </div>
+              <Logo />
+            </div>
             <p className="mt-4 text-text-muted text-sm max-w-xs">
               The best place to shop for high-quality products at the best prices.
             </p>
