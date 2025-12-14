@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import RefreshToken from '../models/RefreshToken.js';
 import { sendTemplateEmail } from '../utils/email.js';
 import crypto from 'crypto';
 import fs from 'fs';

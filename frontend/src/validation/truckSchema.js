@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 const statusEnum = ['available', 'unavailable', 'on_trip', 'maintenance'];
 
-export const createTruckSchema = yup.object({
+export const truckSchema = yup.object({
     plateNumber: yup
         .string()
         .required('Plate number is required')
@@ -13,15 +13,24 @@ export const createTruckSchema = yup.object({
 
     km: yup
         .number()
+        .transform((value, originalValue) => (originalValue === "" ? null : value))
         .min(0, 'Kilometers cannot be negative')
         .default(0),
 
-    purchaseDate: yup.date().required(),
+    purchaseDate:
+        yup.date()
+            .transform((value, originalValue) => (originalValue === "" ? null : value))
+            .required(),
 
-    lastMaintenance: yup.date().optional().nullable(),
+    lastMaintenance:
+        yup.date()
+            .transform((value, originalValue) => (originalValue === "" ? null : value))
+            .nullable()
+            .optional(),
 
     towingCapacity: yup
-        .number()
+        .number('Towing capacity must be a number')
+        .transform((value, originalValue) => (originalValue === "" ? null : value))
         .required()
         .min(0, 'Towing capacity cannot be negative'),
 
@@ -31,17 +40,6 @@ export const createTruckSchema = yup.object({
         .default('available')
 });
 
-
-export const updateTruckSchema = yup.object({
-    plateNumber: yup.string().min(6),
-    brand: yup.string(),
-    model: yup.string(),
-    km: yup.number().min(0),
-    purchaseDate: yup.date(),
-    lastMaintenance: yup.date(),
-    towingCapacity: yup.number().min(0),
-    status: yup.string().oneOf(statusEnum)
-});
 
 export const updateTruckStatusSchema = yup.object({
     status: yup

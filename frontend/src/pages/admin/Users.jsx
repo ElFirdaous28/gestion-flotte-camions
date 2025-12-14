@@ -12,7 +12,7 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState(null);
   const limit = 10;
 
-  const { usersQuery } = useUsers({ role, page, limit, search, sort, order: 'desc' });
+  const { usersQuery, deleteUser } = useUsers({ role, page, limit, search, sort, order: 'desc' });
 
   const users = usersQuery.data?.users || [];
   const pagination = usersQuery.data?.pagination || {};
@@ -187,6 +187,7 @@ export default function Users() {
                           <SquarePen size={18} />
                         </button>
                         <button
+                          onClick={() => deleteUser.mutate(user._id)}
                           className="text-muted hover:text-red-500 transition-colors p-1 rounded-md hover:bg-background"
                           title="Delete User"
                         >
