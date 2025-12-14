@@ -25,8 +25,12 @@ const errorHandler = (err, req, res, next) => {
 
   // Duplicate key (email, etc.)
   if (err.code === 11000) {
-    statusCode = 400;
-    message = `Duplicate field value: ${Object.keys(err.keyValue).join(", ")}`;
+    const field = Object.keys(err.keyValue)[0];
+    return res.status(400).json({
+      errors: {
+        [field]: `${field} already exists`,
+      },
+    });
   }
 
   // JWT errors
