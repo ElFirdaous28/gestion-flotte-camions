@@ -10,7 +10,7 @@ export default function Trucks() {
 
     const { trucksQuery, deleteTruck, createTruck, updateTruck } = useTrucks({ page });
 
-    const trucks = trucksQuery.data || [];
+    const trucks = trucksQuery.data?.trucks || [];
     const isLoading = trucksQuery.isLoading;
 
     const openModal = (truck = null) => {

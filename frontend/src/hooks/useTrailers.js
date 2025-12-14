@@ -12,7 +12,11 @@ export const useTrailers = ({ page = 1, limit = 10, search = '', status = '', so
             const res = await axios.get('/trailers', {
                 params: { page, limit, search, status, sort, order },
             });
-            return res.data;
+
+            return {
+                trailers: res.data.trailers,
+                pagination: res.data.pagination,
+            };
         },
         keepPreviousData: true,
     });

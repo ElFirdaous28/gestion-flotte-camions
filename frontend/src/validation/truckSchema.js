@@ -22,11 +22,9 @@ export const truckSchema = yup.object({
             .transform((value, originalValue) => (originalValue === "" ? null : value))
             .required(),
 
-    lastMaintenance:
-        yup.date()
-            .transform((value, originalValue) => (originalValue === "" ? null : value))
-            .nullable()
-            .optional(),
+    lastMaintenance: yup.date()
+        .nullable()
+        .transform((value, originalValue) => originalValue === '' ? null : value),
 
     towingCapacity: yup
         .number('Towing capacity must be a number')
