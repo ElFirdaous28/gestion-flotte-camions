@@ -29,7 +29,19 @@ export const createTire = async (req, res, next) => {
 
 export const getTires = async (req, res, next) => {
     try {
-        const { truck, trailer } = req.query;
+        let {
+            page = 1,
+            limit = 10,
+            search,
+            status,
+            sort = 'createdAt',
+            order = 'desc',
+            truck,
+            trailer
+        } = req.query;
+
+        page = Number(page);
+        limit = Number(limit);
 
         // Validation: cannot provide both truck and trailer
         if (truck && trailer) {
@@ -38,13 +50,41 @@ export const getTires = async (req, res, next) => {
             });
         }
 
-        const filter = truck ? { truck } : trailer ? { trailer } : {};
+        const filter = {};
+        if (truck) filter.truck = truck;
+        if (trailer) filter.trailer = trailer;
+        if (status) filter.status = status;
 
-        const tires = await Tire.find(filter);
+        if (search) {
+            const regex = new RegExp(search, 'i');
+            filter.$or = [
+                { brand: regex },
+                { model: regex },
+                { position: regex },
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [tires, total] = await Promise.all([
+            Tire.find(filter)
+                .populate('truck', 'plateNumber brand model')
+                .populate('trailer', 'plateNumber type')
+                .sort({ [sort]: order === 'asc' ? 1 : -1 })
+                .skip(skip)
+                .limit(limit),
+            Tire.countDocuments(filter)
+        ]);
 
         res.status(200).json({
             message: 'Tires fetched successfully',
-            tires
+            tires,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
         });
     } catch (err) {
         next(err);
