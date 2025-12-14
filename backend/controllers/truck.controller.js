@@ -1,12 +1,51 @@
 import Truck from '../models/Truck.js';
 
 export const getTrucks = async (req, res, next) => {
-    try {
-        const trucks = await Truck.find();
-        res.status(200).json(trucks);
-    } catch (err) {
-        next(err);
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      search,
+      sort = 'createdAt',
+      order = 'desc'
+    } = req.query;
+
+    // Build filter
+    const filter = {};
+    if (status) filter.status = status;
+
+    if (search) {
+      filter.$or = [
+        { plateNumber: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } },
+        { model: { $regex: search, $options: 'i' } }
+      ];
     }
+
+    const skip = (page - 1) * limit;
+
+    const [trucks, total] = await Promise.all([
+      Truck.find(filter)
+        .sort({ [sort]: order === 'asc' ? 1 : -1 })
+        .skip(Number(skip))
+        .limit(Number(limit)),
+      Truck.countDocuments(filter)
+    ]);
+
+    res.status(200).json({
+      message: 'Trucks fetched successfully',
+      trucks,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getTruck = async (req, res, next) => {
