@@ -1,23 +1,16 @@
 import { useAuth } from './useAuth';
 import { useMemo } from 'react';
-import api from '../services/axios';
-import { v4 as uuid } from 'uuid';
+import api from '../api/axios';
 
 export const useAxios = () => {
   const { accessToken } = useAuth();
-  let sessionId = localStorage.getItem('sessionId');
 
-  if (!sessionId) {
-    sessionId = uuid();
-    localStorage.setItem('sessionId', sessionId);
-  }
   // useMemo ensures we don't recreate instance on every render unnecessarily
   const axiosInstance = useMemo(() => {
     const instance = api;
 
     instance.interceptors.request.use(
       (config) => {
-        config.headers['session-id'] = sessionId;
         if (accessToken) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
@@ -27,7 +20,7 @@ export const useAxios = () => {
     );
 
     return instance;
-  }, [accessToken, sessionId]);
+  }, [accessToken]);
 
   return axiosInstance;
 };

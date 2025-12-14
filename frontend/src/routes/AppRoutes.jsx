@@ -2,6 +2,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { lazy, Suspense } from 'react';
 import Test from '../pages/app/Test';
+import AdminRoutes from './AdminRoutes';
+import ProtectedRoute from './ProtectedRoute';
 const Layout = lazy(() => import('../layout/Layout'));
 const Login = lazy(() => import('../pages/auth/Login'));
 const NotFound = lazy(() => import('../pages/app/NotFound'));
@@ -19,6 +21,10 @@ const AppRoutes = () => {
           {/* routes tking layou */}
           <Route path="/" element={<Layout />}>
             <Route path='/test' element={<Test />} />
+
+            {/* admin routes */}
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>{AdminRoutes()}</Route>
+
           </Route>
 
           {/* catche not unauthorized routes */}

@@ -22,11 +22,13 @@ function Header({ toggleMobileMenu }) {
             </button>
           }
 
-          <div className="w-8 h-8 md:w-11 md:h-11 bg-primary rounded-lg shrink-0 flex items-center justify-center font-bold text-xl text-white">
-            <img className="w-10" src="/images/logo.svg" alt="logo" />
-          </div>
           {!user &&
-            <Logo className="hidden md:flex" />
+            <>
+              <div className="w-8 h-8 md:w-11 md:h-11 bg-primary rounded-lg shrink-0 flex items-center justify-center font-bold text-xl text-white">
+                <img className="w-10" src="/images/logo.svg" alt="logo" />
+              </div>
+              <Logo className="hidden md:flex" />
+            </>
           }
         </div>
 
