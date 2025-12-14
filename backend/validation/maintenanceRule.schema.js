@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import mongoose from 'mongoose';
 
 export const MaintenanceRuleSchema = yup.object({
     target: yup
