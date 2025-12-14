@@ -53,7 +53,10 @@ export const createUser = async (req, res, next) => {
 export const profile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
-        res.json({ user });
+        res.json({
+            message: 'Profile fetched successfully',
+            user
+        });
     } catch (err) {
         next(err);
     }
@@ -61,10 +64,47 @@ export const profile = async (req, res, next) => {
 
 export const getUsers = async (req, res, next) => {
     try {
-        const { role } = req.query;
-        const filter = role ? { role } : {};
-        const users = await User.find(filter).select('-password'); // exclude password
-        res.json(users);
+        const {
+            page = 1,
+            limit = 10,
+            role,
+            search,
+            sort = 'createdAt',
+            order = 'desc'
+        } = req.query;
+
+        // Filters
+        const filter = {};
+        if (role) filter.role = role;
+
+        if (search) {
+            filter.$or = [
+                { fullname: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [users, total] = await Promise.all([
+            User.find(filter)
+                .select('-password')
+                .sort({ [sort]: order === 'asc' ? 1 : -1 })
+                .skip(Number(skip))
+                .limit(Number(limit)),
+            User.countDocuments(filter)
+        ]);
+
+        res.json({
+            message: 'Users fetched successfully',
+            users,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / limit)
+            }
+        });
     } catch (err) {
         next(err);
     }
@@ -77,7 +117,10 @@ export const getUserById = async (req, res, next) => {
         const user = await User.findById(id).select('-password');
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        res.json(user);
+        res.json({
+            message: 'User fetched successfully',
+            user
+        });
     } catch (err) {
         next(err);
     }

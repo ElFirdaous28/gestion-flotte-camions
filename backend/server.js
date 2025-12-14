@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import { connectDB } from './config/db.js';
 import config from './config/config.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
@@ -19,6 +21,10 @@ import errorHandler from './middlewares/error.middleware.js';
 
 const app = express();
 const PORT = config.PORT || 3000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, 'public')));
 
 /* ---------- MIDDLEWARES ---------- */
 app.use(express.json());

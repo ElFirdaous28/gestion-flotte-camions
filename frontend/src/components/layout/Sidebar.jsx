@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import {
   Home,
-  Package,
   Users,
   ChevronsRight,
   ChevronsLeft,
-  User,
-  History,
-  Tickets,
-  Star,
+  Truck,
+  FileText,
+  Settings,
+  Calendar,
+  Wrench,
 } from 'lucide-react';
+import { PiTireThin } from "react-icons/pi";
+import { FaTrailer } from "react-icons/fa";
+
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from './Logo';
@@ -20,25 +23,23 @@ function Sidebar({ mobileMenuOpen, setMobileMenuOpen }) {
   const { pathname } = useLocation();
 
   const links = {
-    user: [
-      { title: 'Home', path: '/', icon: Home },
-      { title: 'Products', path: '/products', icon: Package },
-      { title: 'Profile', path: '/profile', icon: User },
-    ],
-
-    seller: [
-      { title: 'Dashboard', path: '/seller/overview', icon: Home },
-      { title: 'My Products', path: '/seller/products', icon: Package },
-      { title: 'coupons', path: '/seller/coupons', icon: Tickets },
+    driver: [
+      { title: 'Dashboard', path: '/driver/dashboard', icon: Home },
+      { title: 'My Trips', path: '/driver/trips', icon: Calendar },
+      { title: 'Profile', path: '/profile', icon: Users }, // or User icon
     ],
 
     admin: [
       { title: 'Dashboard', path: '/admin/dashboard', icon: Home },
-      { title: 'Users', path: '/admin/usermanage', icon: Users },
-      { title: 'Products', path: '/admin/productmanage', icon: Package },
-      { title: 'Reviews', path: '/admin/reviews', icon: Star },
-      { title: 'Activities', path: '/admin/activities', icon: History },
-      { title: 'Profile', path: '/profile', icon: User },
+      { title: 'Users', path: '/admin/users', icon: Users },
+      { title: 'Trucks', path: '/admin/trucks', icon: Truck },
+      { title: 'Trailers', path: '/admin/trailers', icon: FaTrailer },
+      { title: 'Tires', path: '/admin/tires', icon: PiTireThin },
+      { title: 'Trips', path: '/admin/trips', icon: Calendar },
+      { title: 'Maintenance', path: '/admin/maintenance', icon: Wrench },
+      { title: 'Maintenance Rules', path: '/admin/maintenance/rules', icon: Settings },
+      { title: 'Reports', path: '/admin/reports', icon: FileText },
+      { title: 'Profile', path: '/profile', icon: Users }, // optional
     ],
   };
 
