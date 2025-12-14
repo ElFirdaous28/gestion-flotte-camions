@@ -36,8 +36,8 @@ function Sidebar({ mobileMenuOpen, setMobileMenuOpen }) {
       { title: 'Trailers', path: '/admin/trailers', icon: FaTrailer },
       { title: 'Tires', path: '/admin/tires', icon: PiTireThin },
       { title: 'Trips', path: '/admin/trips', icon: Calendar },
-      { title: 'Maintenance', path: '/admin/maintenance', icon: Wrench },
       { title: 'Maintenance Rules', path: '/admin/maintenance/rules', icon: Settings },
+      { title: 'Maintenance', path: '/admin/maintenance', icon: Wrench },
       { title: 'Reports', path: '/admin/reports', icon: FileText },
       { title: 'Profile', path: '/profile', icon: Users }, // optional
     ],

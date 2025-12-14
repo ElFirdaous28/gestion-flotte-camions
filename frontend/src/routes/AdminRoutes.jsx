@@ -6,6 +6,7 @@ const Users = lazy(() => import('../pages/admin/Users'));
 const Trucks = lazy(() => import('../pages/admin/Trucks'));
 const Trailers = lazy(() => import('../pages/admin/Trailers'));
 const Tires = lazy(() => import('../pages/admin/Tires'));
+const MaintenanceRules = lazy(() => import('../pages/admin/MaintenanceRules'));
 
 export default function AdminRoutes() {
   return (
@@ -15,6 +16,7 @@ export default function AdminRoutes() {
       <Route path="/admin/trucks" element={<Trucks />} />
       <Route path="/admin/trailers" element={<Trailers />} />
       <Route path="/admin/tires" element={<Tires />} />
+      <Route path="/admin/maintenance/rules" element={<MaintenanceRules />} />
     </>
   );
 }
