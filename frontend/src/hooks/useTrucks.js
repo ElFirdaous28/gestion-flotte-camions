@@ -12,7 +12,11 @@ export const useTrucks = ({ page = 1, limit = 10, search = '', status = '', sort
       const res = await axios.get('/trucks', {
         params: { page, limit, search, status, sort, order },
       });
-      return res.data;
+
+      return {
+        trucks: res.data.trucks,
+        pagination: res.data.pagination,
+      };
     },
     keepPreviousData: true,
   });

@@ -10,7 +10,7 @@ export default function Trailers() {
 
     const { trailersQuery, deleteTrailer, createTrailer, updateTrailer } = useTrailers({ page });
 
-    const trailers = trailersQuery.data || [];
+    const trailers = trailersQuery.data?.trailers || [];
     const isLoading = trailersQuery.isLoading;
 
     const openModal = (trailer = null) => {
