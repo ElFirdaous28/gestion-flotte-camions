@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { X, Upload } from 'lucide-react';
 import { useUsers } from '../../hooks/useUsers';
 import { userSchema } from '../../validation/userSchema';
+import { toast } from 'react-toastify';
 
 export default function UserModal({ isOpen, onClose, userToEdit }) {
   const { createUser, updateUser } = useUsers();
@@ -21,6 +22,10 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
     resolver: yupResolver(userSchema),
     defaultValues: { fullname: '', email: '', role: 'driver', avatar: null },
   });
+
+  const isLoading = userToEdit
+    ? updateUser.isPending
+    : createUser.isPending;
 
   // Dropzone Logic
   const onDrop = useCallback((acceptedFiles) => {
@@ -61,26 +66,26 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
         formData.append('fullname', data.fullname);
         formData.append('email', data.email);
         formData.append('role', data.role);
-        
+
         if (data.avatar instanceof File) {
           formData.append('avatar', data.avatar);
         }
-        await updateUser.mutateAsync({ id: userToEdit._id, data: formData });
-
+        const res = await updateUser.mutateAsync({ id: userToEdit._id, data: formData });
+        toast.success(res.data.message)
       } else {
-        // --- CREATE: JSON (No Image) ---
-        const { avatar, ...createData } = data; 
-        await createUser.mutateAsync(createData);
+        const { avatar, ...createData } = data;
+        const res = await createUser.mutateAsync(createData);
+        toast.success(res.data.message);
       }
-      
+
       onClose();
     } catch (err) {
       console.error(err);
       if (err.response?.data?.errors) {
-         const backendErrors = err.response.data.errors;
-         Object.keys(backendErrors).forEach((key) => {
-           setError(key, { type: "server", message: backendErrors[key] });
-         });
+        const backendErrors = err.response.data.errors;
+        Object.keys(backendErrors).forEach((key) => {
+          setError(key, { type: "server", message: backendErrors[key] });
+        });
       }
     }
   };
@@ -108,9 +113,8 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
             <input
               type="text"
               {...register('fullname')}
-              className={`w-full px-4 py-2 bg-background text-text rounded-lg border ${
-                errors.fullname ? 'border-red-500' : 'border-border'
-              } focus:outline-none focus:ring-2 focus:border-primary`}
+              className={`w-full px-4 py-2 bg-background text-text rounded-lg border ${errors.fullname ? 'border-red-500' : 'border-border'
+                } focus:outline-none focus:ring-2 focus:border-primary`}
             />
             <p className="text-red-500 text-xs mt-1">{errors.fullname?.message || ' '}</p>
           </div>
@@ -121,9 +125,8 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
             <input
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-2 bg-background text-text rounded-lg border ${
-                errors.email ? 'border-red-500' : 'border-border'
-              } focus:outline-none focus:ring-2 focus:border-primary`}
+              className={`w-full px-4 py-2 bg-background text-text rounded-lg border ${errors.email ? 'border-red-500' : 'border-border'
+                } focus:outline-none focus:ring-2 focus:border-primary`}
             />
             <p className="text-red-500 text-xs mt-1">{errors.email?.message || ' '}</p>
           </div>
@@ -133,9 +136,8 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
             <label className="block mb-1 text-text font-medium">Role</label>
             <select
               {...register('role')}
-              className={`w-full px-4 py-2 bg-background text-text rounded-lg border ${
-                errors.role ? 'border-red-500' : 'border-border'
-              } focus:outline-none focus:ring-2 focus:border-primary`}
+              className={`w-full px-4 py-2 bg-background text-text rounded-lg border ${errors.role ? 'border-red-500' : 'border-border'
+                } focus:outline-none focus:ring-2 focus:border-primary`}
             >
               <option value="driver">Driver</option>
               <option value="admin">Admin</option>
@@ -149,14 +151,13 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
               <label className="block mb-1 text-text font-medium">Avatar</label>
               <div
                 {...getRootProps()}
-                className={`w-full p-4 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${
-                  isDragActive 
-                    ? 'border-primary bg-background/50' 
-                    : 'border-border hover:border-primary hover:bg-background/30'
-                }`}
+                className={`w-full p-4 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${isDragActive
+                  ? 'border-primary bg-background/50'
+                  : 'border-border hover:border-primary hover:bg-background/30'
+                  }`}
               >
                 <input {...getInputProps()} />
-                
+
                 <div className="flex flex-col items-center justify-center gap-2">
                   {preview ? (
                     <img
@@ -179,10 +180,20 @@ export default function UserModal({ isOpen, onClose, userToEdit }) {
 
           <button
             type="submit"
-            className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition shadow-md"
-          >
-            {userToEdit ? 'Update User' : 'Create User'}
+            disabled={isLoading}
+            className={`w-full py-3 bg-primary text-white font-semibold rounded-lg transition shadow-md
+              ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-90'}
+              `}
+              >
+            {isLoading
+              ? userToEdit
+                ? 'Updating user...'
+                : 'Creating user...'
+              : userToEdit
+                ? 'Update User'
+                : 'Create User'}
           </button>
+
         </form>
       </div>
     </div>

@@ -18,7 +18,9 @@ export const createUser = async (req, res, next) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({
+                errors: { email: 'Email already in use' }
+            });
         }
 
         // Generate random password
@@ -146,29 +148,40 @@ export const updateUser = async (req, res, next) => {
         const { id } = req.params;
         const updates = { ...req.body };
 
-        // If avatar uploaded
+        // If email is being changed -> M`check uniqueness
+        if (updates.email) {
+            const existing = await User.findOne({
+                email: updates.email,
+                _id: { $ne: id },
+            });
+            if (existing) {
+                return res.status(400).json({
+                    errors: { email: 'Email already in use' }
+                });
+            }
+        }
+
+        // Avatar upload
         if (req.file) {
             updates.avatar = `/uploads/avatars/${req.file.filename}`;
 
-            // remove old avatar
             const user = await User.findById(id);
             if (user?.avatar) {
-                const oldPath = path.join(process.cwd(), user.avatar);
-                fs.unlink(oldPath, (err) => {
-                    if (err) console.warn('Failed to delete old avatar:', err.message);
-                });
+                fs.unlink(path.join(process.cwd(), user.avatar), () => { });
             }
         }
 
         const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true });
 
-        if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+        if (!updatedUser)
+            return res.status(404).json({ message: 'User not found' });
 
         res.json({ message: 'User updated successfully', user: updatedUser });
     } catch (err) {
         next(err);
     }
 };
+
 
 export const changePassword = async (req, res, next) => {
     try {
