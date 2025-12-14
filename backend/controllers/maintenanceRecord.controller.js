@@ -18,8 +18,52 @@ export const createMaintenanceRecord = async (req, res, next) => {
 
 export const getMaintenanceRecords = async (req, res, next) => {
     try {
-        const records = await MaintenanceRecord.find().populate('rule').sort({ createdAt: -1 });
-        res.json({ message: 'Maintenance records fetched successfully', records });
+        const {
+            page = 1,
+            limit = 10,
+            targetType,
+            targetId,
+            rule,
+            sort = 'performedAt',
+            order = 'desc',
+            fromDate,
+            toDate
+        } = req.query;
+
+        // Build filters
+        const filter = {};
+        if (targetType) filter.targetType = targetType;
+        if (targetId) filter.targetId = targetId;
+        if (rule) filter.rule = rule;
+
+        // Date range filter
+        if (fromDate || toDate) {
+            filter.performedAt = {};
+            if (fromDate) filter.performedAt.$gte = new Date(fromDate);
+            if (toDate) filter.performedAt.$lte = new Date(toDate);
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [records, total] = await Promise.all([
+            MaintenanceRecord.find(filter)
+                .populate('rule', 'name intervalType intervalValue description')
+                .sort({ [sort]: order === 'asc' ? 1 : -1 })
+                .skip(Number(skip))
+                .limit(Number(limit)),
+            MaintenanceRecord.countDocuments(filter)
+        ]);
+
+        res.json({
+            message: 'Maintenance records fetched successfully',
+            records,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / limit)
+            }
+        });
     } catch (err) {
         next(err);
     }
