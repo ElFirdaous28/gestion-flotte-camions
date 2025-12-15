@@ -149,7 +149,7 @@ export const updateUser = async (req, res, next) => {
         const { id } = req.params;
         const updates = { ...req.body };
 
-        // If email is being changed -> M`check uniqueness
+        // If email is being changed -> check uniqueness
         if (updates.email) {
             const existing = await User.findOne({
                 email: updates.email,
