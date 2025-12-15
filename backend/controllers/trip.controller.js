@@ -3,14 +3,60 @@ import Trip from '../models/Trip.js';
 import Truck from '../models/Truck.js';
 import { updateTruckAndTiresKm } from '../services/updateTruckAndTiresKm.js';
 import { validateTripResources } from '../services/validateTripResources.js';
+import User from '../models/User.js';
 
 export const getTrips = async (req, res, next) => {
     try {
-        const trips = await Trip.find()
-            .populate('truck trailer')
-            .populate({ path: 'driver', select: '-password' });
-        ;
-        res.status(200).json(trips);
+        const {
+            page = 1,
+            limit = 10,
+            status,
+            type,
+            search,
+            order = 'desc'
+        } = req.query;
+
+        const filter = {};
+        if (status) filter.status = status;
+        if (type) filter.type = type;
+
+        // Search: driver fullname OR locations
+        if (search) {
+            // find matching drivers first
+            const drivers = await User.find({
+                fullname: { $regex: search, $options: 'i' }
+            }).select('_id');
+
+            filter.$or = [
+                { startLocation: { $regex: search, $options: 'i' } },
+                { endLocation: { $regex: search, $options: 'i' } },
+                { driver: { $in: drivers.map(d => d._id) } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [trips, total] = await Promise.all([
+            Trip.find(filter)
+                .populate('truck', 'plateNumber brand model')
+                .populate('trailer', 'plateNumber type')
+                .populate('driver', 'fullname email')
+                .sort({ createdAt: order === 'asc' ? 1 : -1 })
+                .skip(Number(skip))
+                .limit(Number(limit)),
+            Trip.countDocuments(filter)
+        ]);
+
+        res.status(200).json({
+            message: 'Trips fetched successfully',
+            trips,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / limit)
+            }
+        });
     } catch (err) {
         next(err);
     }
@@ -115,7 +161,7 @@ export const startTrip = async (req, res, next) => {
 
 export const completeTrip = async (req, res, next) => {
     try {
-        const { fuelEnd, kmEnd, notes } = req.body;
+        const { fuelEnd, kmEnd, notes, actualEndDate } = req.body;
         const trip = await Trip.findById(req.params.id);
         if (!trip) return res.status(404).json({ message: 'Trip not found' });
 
@@ -128,7 +174,7 @@ export const completeTrip = async (req, res, next) => {
         trip.status = 'completed';
         trip.fuelEnd = fuelEnd;
         trip.kmEnd = kmEnd;
-        trip.actualEndDate = new Date(actualEndDate); 
+        trip.actualEndDate = new Date(actualEndDate);
         if (notes) trip.notes = notes;
 
         await trip.save();

@@ -9,7 +9,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user.mustChangePassword && location.pathname !== '/driver/change-password') {
+  if (user.role === 'driver' && user.mustChangePassword && pathname !== '/driver/change-password') {
     return <Navigate to="/driver/change-password" replace />;
   }
 

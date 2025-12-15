@@ -4,7 +4,6 @@ import { lazy, Suspense } from 'react';
 import Test from '../pages/app/Test';
 import AdminRoutes from './AdminRoutes';
 import DriverRoutes from './DriverRoutes';
-import ProtectedRoute from './ProtectedRoute';
 
 // Lazy load pages
 const Layout = lazy(() => import('../layout/Layout'));
@@ -24,13 +23,10 @@ const AppRoutes = () => {
             <Route path='/test' element={<Test />} />
 
             {/* admin routes */}
-            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-              {AdminRoutes()}
-            </Route>
+            {AdminRoutes()}
+
             {/* driver routes */}
-            <Route element={<ProtectedRoute allowedRoles={['driver']} />}>
-              {DriverRoutes()}
-            </Route>
+            {DriverRoutes()}
 
           </Route>
 
