@@ -1,25 +1,20 @@
 import * as yup from 'yup';
-import mongoose from 'mongoose';
 
 const tripTypes = ['delivery', 'pickup', 'transfer', 'other'];
 const tripStatus = ['to-do', 'in-progress', 'completed'];
-const objectIdTest = value => mongoose.Types.ObjectId.isValid(value);
 
-export const TripSchema = yup.object({
+export const tripSchema = yup.object({
     truck: yup
         .string()
-        .required('Truck is required')
-        .test('is-objectid', 'Invalid truck ID', objectIdTest),
+        .required('Truck is required'),
 
     trailer: yup
         .string()
-        .required('Trailer is required')
-        .test('is-objectid', 'Invalid trailer ID', value => !value || objectIdTest(value)),
+        .required('Trailer is required'),
 
     driver: yup
         .string()
-        .required('Driver is required')
-        .test('is-objectid', 'Invalid driver ID', objectIdTest),
+        .required('Driver is required'),
 
     startLocation: yup.string().required('Start location is required').max(100),
     endLocation: yup.string().required('End location is required').max(100),
