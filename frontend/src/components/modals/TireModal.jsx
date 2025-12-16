@@ -8,6 +8,22 @@ import Select from 'react-select';
 import { useTrucks } from "../../hooks/useTrucks";
 import { useTrailers } from "../../hooks/useTrailers";
 
+
+const selectStyles = {
+    control: ({ isFocused } = {}) =>
+        `!bg-surface !border-border !rounded-lg !min-h-[42px] shadow-sm ${isFocused ? '!ring-2 !ring-primary/50 !border-primary' : ''}`,
+    menu: () =>
+        "!bg-surface border border-border mt-1 rounded-md shadow-lg z-50",
+    option: ({ isSelected, isFocused } = {}) => {
+        if (isSelected) return "!bg-primary !text-white";
+        if (isFocused) return "!bg-background !text-text cursor-pointer";
+        return "!bg-surface !text-text";
+    },
+
+    singleValue: () => "!text-text",
+    input: () => "!text-text",
+};
+
 export default function TireModal({ isOpen, onClose, onSubmit, tireToEdit }) {
     const { register, handleSubmit, control, setValue, formState: { errors, isSubmitting }, reset, setError } = useForm({
         resolver: yupResolver(tireSchema),
@@ -30,18 +46,38 @@ export default function TireModal({ isOpen, onClose, onSubmit, tireToEdit }) {
 
     useEffect(() => {
         if (isOpen) {
-            reset(tireToEdit ? tireToEdit : {
-                brand: '',
-                model: '',
-                size: '',
-                position: '',
-                status: 'stock',
-                km: 0,
-                purchaseDate: '',
-                startUseDate: '',
-                truck: null,
-                trailer: null
-            });
+            if (tireToEdit) {
+                const formValues = { ...tireToEdit };
+                if (formValues.truck && typeof formValues.truck === 'object') {
+                    formValues.truck = formValues.truck._id;
+                }
+
+                if (formValues.trailer && typeof formValues.trailer === 'object') {
+                    formValues.trailer = formValues.trailer._id;
+                }
+                if (formValues.purchaseDate) {
+                    formValues.purchaseDate = formValues.purchaseDate.split('T')[0];
+                }
+                if (formValues.startUseDate) {
+                    formValues.startUseDate = formValues.startUseDate.split('T')[0];
+                }
+
+                reset(formValues);
+            } else {
+                // Default values for New Tire
+                reset({
+                    brand: '',
+                    model: '',
+                    size: '',
+                    position: '',
+                    status: 'stock',
+                    km: 0,
+                    purchaseDate: '',
+                    startUseDate: '',
+                    truck: null,
+                    trailer: null
+                });
+            }
         }
     }, [isOpen, tireToEdit, reset]);
 
@@ -60,32 +96,6 @@ export default function TireModal({ isOpen, onClose, onSubmit, tireToEdit }) {
                 toast.error(err.response?.data?.message || "Something went wrong");
             }
         }
-    };
-
-    const selectStyles = {
-        control: (base, state) => ({
-            ...base,
-            backgroundColor: 'var(--surface)',
-            borderColor: state.isFocused ? 'var(--primary)' : 'var(--border)',
-            borderWidth: '1px',
-            boxShadow: 'none',
-            minHeight: '42px',
-            '&:hover': { borderColor: 'var(--primary)' },
-        }),
-        menu: (base) => ({
-            ...base,
-            backgroundColor: 'var(--surface)',
-            zIndex: 100
-        }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isFocused ? 'var(--primary)' : 'var(--surface)',
-            color: 'var(--text)',
-        }),
-        singleValue: (base) => ({
-            ...base,
-            color: 'var(--text)',
-        }),
     };
 
     if (!isOpen) return null;
@@ -169,15 +179,14 @@ export default function TireModal({ isOpen, onClose, onSubmit, tireToEdit }) {
                                             render={({ field }) => (
                                                 <Select
                                                     {...field}
-                                                    styles={selectStyles}
+                                                    classNames={selectStyles}
                                                     options={truckOptions}
                                                     isClearable
                                                     placeholder="Search truck..."
-                                                    // Map the ID value back to the full Option object
                                                     value={truckOptions.find(c => c.value === field.value) || null}
                                                     onChange={(val) => {
-                                                        field.onChange(val ? val.value : null); // Update Truck
-                                                        if (val) setValue("trailer", null); // Clear Trailer
+                                                        field.onChange(val ? val.value : null);
+                                                        if (val) setValue("trailer", null);
                                                     }}
                                                 />
                                             )}
@@ -194,7 +203,7 @@ export default function TireModal({ isOpen, onClose, onSubmit, tireToEdit }) {
                                             render={({ field }) => (
                                                 <Select
                                                     {...field}
-                                                    styles={selectStyles}
+                                                    classNames={selectStyles}
                                                     options={trailerOptions}
                                                     isClearable
                                                     placeholder="Search trailer..."

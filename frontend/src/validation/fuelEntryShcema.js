@@ -1,11 +1,9 @@
 import * as yup from 'yup';
-import mongoose from 'mongoose';
 
-export const FuelEntrySchema = yup.object({
+export const fuelEntrySchema = yup.object({
     trip: yup
         .string()
-        .required('Trip is required')
-        .test('is-objectid', 'Invalid trip ID', value => mongoose.Types.ObjectId.isValid(value)),
+        .required('Trip is required'),
 
     amount: yup
         .number()

@@ -1,51 +1,47 @@
 import { useState } from 'react';
 import { useTrips } from '../../hooks/useTrips';
-import TripModal from '../../components/modals/TripModal';
+import TripFormModal from '../../components/modals/TripFormModal';
+import StartTripModal from '../../components/modals/StartTripModal';
 import { SquarePen, Trash2, Play, CheckCircle, Eye, Calendar, Search, Plus, Truck, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import CompleteTripModal from '../../components/modals/CompleteTripModal.';
 
 export default function Trips() {
-    // 1. Filter States
+    // --- Filters ---
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('');
     const [type, setType] = useState('');
 
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [modalData, setModalData] = useState({ trip: null, action: 'create' });
+    // --- Modal States ---
+    const [activeModal, setActiveModal] = useState(null); // 'form' | 'start' | 'complete' | null
+    const [selectedTrip, setSelectedTrip] = useState(null);
 
-    // 2. Pass filters to hook
-    const { tripsQuery, deleteTrip, createTrip, updateTrip, startTrip, completeTrip } = useTrips({
-        page,
-        search,
-        status,
-        type
-    });
-
-    // 3. Handle data structure (Backend returns { trips, pagination })
+    const { tripsQuery, deleteTrip, createTrip, updateTrip, startTrip, completeTrip } = useTrips({ page, search, status, type });
     const trips = tripsQuery.data?.trips || [];
-    const pagination = tripsQuery.data?.pagination || { totalPages: 1, page: 1, total: 0 };
+    const pagination = tripsQuery.data?.pagination || { totalPages: 1, total: 0 };
     const isLoading = tripsQuery.isLoading;
 
-    // Helper to reset page when filtering
-    const handleFilterChange = (setter, value) => {
-        setter(value);
-        setPage(1); // Always go back to page 1 when filtering
+    const handleFilterChange = (setter, value) => { setter(value); setPage(1); };
+
+    // --- Action Handlers ---
+    const openFormModal = (trip = null) => {
+        setSelectedTrip(trip);
+        setActiveModal('form');
     };
 
-    const openModal = (trip, action) => {
-        setModalData({ trip, action });
-        setModalOpen(true);
+    const openStartModal = (trip) => {
+        setSelectedTrip(trip);
+        setActiveModal('start');
     };
 
-    const handleModalSubmit = async (data) => {
-        const { trip, action } = modalData;
-        if (action === 'create') await createTrip.mutateAsync(data);
-        else if (action === 'update') await updateTrip.mutateAsync({ id: trip._id, data });
-        else if (action === 'start') await startTrip.mutateAsync({ id: trip._id, fuelStart: Number(data.fuelStart) });
-        else if (action === 'complete') await completeTrip.mutateAsync({
-            id: trip._id,
-            data: { ...data, fuelEnd: Number(data.fuelEnd), kmEnd: Number(data.kmEnd), actualEndDate: new Date() }
-        });
+    const openCompleteModal = (trip) => {
+        setSelectedTrip(trip);
+        setActiveModal('complete');
+    };
+
+    const closeModal = () => {
+        setActiveModal(null);
+        setSelectedTrip(null);
     };
 
     const getStatusBadge = (status) => {
@@ -64,43 +60,24 @@ export default function Trips() {
 
     return (
         <div className="w-[95%] max-w-7xl mx-auto py-8">
-            {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-text tracking-tight">Trip Management</h2>
                     <p className="text-text-muted text-sm mt-1">Schedule and monitor fleet movements.</p>
                 </div>
-
-                <button
-                    onClick={() => openModal(null, 'create')}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-text font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all"
-                >
-                    <Plus size={20} />
-                    <span>Plan Trip</span>
+                <button onClick={() => openFormModal(null)} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-text font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all">
+                    <Plus size={20} /> <span>Plan Trip</span>
                 </button>
             </div>
 
-            {/* Filters Bar */}
+            {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                {/* Search */}
                 <div className="relative md:col-span-2">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search by driver, location..."
-                        value={search}
-                        onChange={(e) => handleFilterChange(setSearch, e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                    />
+                    <input type="text" placeholder="Search..." value={search} onChange={(e) => handleFilterChange(setSearch, e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
                 </div>
-
-                {/* Status Filter */}
                 <div className="relative">
-                    <select
-                        value={status}
-                        onChange={(e) => handleFilterChange(setStatus, e.target.value)}
-                        className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all appearance-none"
-                    >
+                    <select value={status} onChange={(e) => handleFilterChange(setStatus, e.target.value)} className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none">
                         <option value="">All Statuses</option>
                         <option value="to-do">To Do</option>
                         <option value="in-progress">In Progress</option>
@@ -108,14 +85,8 @@ export default function Trips() {
                     </select>
                     <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />
                 </div>
-
-                {/* Type Filter */}
                 <div className="relative">
-                    <select
-                        value={type}
-                        onChange={(e) => handleFilterChange(setType, e.target.value)}
-                        className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all appearance-none"
-                    >
+                    <select value={type} onChange={(e) => handleFilterChange(setType, e.target.value)} className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none">
                         <option value="">All Types</option>
                         <option value="delivery">Delivery</option>
                         <option value="pickup">Pickup</option>
@@ -126,24 +97,25 @@ export default function Trips() {
                 </div>
             </div>
 
-            {/* Table Section */}
+            {/* Table */}
             <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden flex flex-col min-h-[500px]">
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-primary/5 text-text border-b border-border">
+                        <thead className="bg-primary text-text border-b border-border">
                             <tr>
-                                <th className="px-6 py-4 font-semibold w-24">Number</th>
+                                <th className="px-6 py-4 font-semibold w-24">ID</th>
                                 <th className="px-6 py-4 font-semibold">Route & Date</th>
                                 <th className="px-6 py-4 font-semibold">Resources</th>
+                                <th className="px-6 py-4 font-semibold">Type</th>
                                 <th className="px-6 py-4 font-semibold">Status</th>
                                 <th className="px-6 py-4 font-semibold text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
                             {isLoading ? (
-                                <tr><td colSpan="5" className="text-center py-12 text-text-muted">Loading trips...</td></tr>
+                                <tr><td colSpan="5" className="text-center py-12 text-text-muted">Loading...</td></tr>
                             ) : trips.length === 0 ? (
-                                <tr><td colSpan="5" className="text-center py-12 text-text-muted">No trips found matching your filters.</td></tr>
+                                <tr><td colSpan="5" className="text-center py-12 text-text-muted">No trips found.</td></tr>
                             ) : (
                                 trips.map((trip) => (
                                     <tr key={trip._id} className="hover:bg-black/2 transition-colors group">
@@ -151,68 +123,43 @@ export default function Trips() {
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2 font-medium text-text">
-                                                    <span className="truncate max-w-[100px]">{trip.startLocation}</span>
-                                                    <span className="text-text-muted">→</span>
-                                                    <span className="truncate max-w-[100px]">{trip.endLocation}</span>
+                                                    <span className="truncate max-w-[100px]">{trip.startLocation}</span><span className="text-text-muted">→</span><span className="truncate max-w-[100px]">{trip.endLocation}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                                                    <Calendar size={12} />
-                                                    <span>{new Date(trip.startDate).toLocaleDateString()}</span>
-                                                </div>
+                                                <div className="flex items-center gap-1.5 text-xs text-text-muted"><Calendar size={12} /><span>{new Date(trip.startDate).toLocaleDateString()}</span></div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-1.5 font-medium">
-                                                    <Truck size={14} className="text-primary" />
-                                                    <span>{trip.truck?.plateNumber || 'No Truck'}</span>
-                                                </div>
-                                                <div className="text-xs text-text-muted pl-5">
-                                                    {trip.driver?.fullname || trip.driver?.username || 'No Driver'}
-                                                </div>
+                                                <div className="flex items-center gap-1.5 font-medium"><Truck size={14} className="text-primary" /><span>{trip.truck?.plateNumber || 'No Truck'}</span></div>
+                                                <div className="text-xs text-text-muted pl-5">{trip.driver?.fullname || 'No Driver'}</div>
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 capitalize">{(trip.type)}</td>
                                         <td className="px-6 py-4">{getStatusBadge(trip.status)}</td>
                                         <td className="px-6 py-4">
-                                            <div className="flex justify-end items-center gap-1 sm:group-hover:opacity-100 transition-opacity">
-
-                                                {/* Edit / View Button */}
-                                                <button
-                                                    onClick={() => openModal(trip, 'update')}
+                                            <div className="flex justify-center items-center gap-1 transition-opacity">
+                                                <button onClick={() => openFormModal(trip)}
                                                     className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
-                                                    title={trip.status === 'to-do' ? "Edit" : "View"}
-                                                >
+                                                    title={trip.status === 'to-do' ? "Edit" : "View"}>
                                                     {trip.status === 'to-do' ? <SquarePen size={16} /> : <Eye size={16} />}
                                                 </button>
-
-                                                {/* Start Button (Green) */}
                                                 {trip.status === 'to-do' && (
-                                                    <button
-                                                        onClick={() => openModal(trip, 'start')}
+                                                    <button onClick={() => openStartModal(trip)}
                                                         className="p-2 text-text-muted hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"
-                                                        title="Start"
-                                                    >
+                                                        title="Start">
                                                         <Play size={16} />
                                                     </button>
                                                 )}
-
-                                                {/* Complete Button (Blue) */}
                                                 {trip.status === 'in-progress' && (
-                                                    <button
-                                                        onClick={() => openModal(trip, 'complete')}
+                                                    <button onClick={() => openCompleteModal(trip)}
                                                         className="p-2 text-text-muted hover:text-blue-600 hover:bg-blue-500/10 rounded-md transition-colors"
-                                                        title="Complete"
-                                                    >
+                                                        title="Complete">
                                                         <CheckCircle size={16} />
                                                     </button>
                                                 )}
-
-                                                {/* Delete Button (Red) */}
-                                                <button
-                                                    onClick={() => deleteTrip.mutate(trip._id)}
+                                                <button onClick={() => deleteTrip.mutate(trip._id)}
                                                     className="p-2 text-text-muted hover:text-red-600 hover:bg-red-500/10 rounded-md transition-colors"
-                                                    title="Delete"
-                                                >
+                                                    title="Delete">
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>
@@ -223,42 +170,37 @@ export default function Trips() {
                         </tbody>
                     </table>
                 </div>
-
-                {/* Pagination Footer */}
+                {/* Pagination */}
                 <div className="px-6 py-4 border-t border-border bg-surface flex items-center justify-between">
-                    <span className="text-xs text-text-muted">
-                        Showing {trips.length} of {pagination.total} records
-                    </span>
-
+                    <span className="text-xs text-text-muted">Showing {trips.length} of {pagination.total} records</span>
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setPage(old => Math.max(old - 1, 1))}
-                            disabled={page === 1}
-                            className="p-1.5 rounded-md border border-border hover:bg-black/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronLeft size={16} />
-                        </button>
-                        <span className="text-sm font-medium px-2">
-                            Page {page} of {pagination.totalPages}
-                        </span>
-                        <button
-                            onClick={() => setPage(old => (pagination.totalPages > old ? old + 1 : old))}
-                            disabled={page >= pagination.totalPages}
-                            className="p-1.5 rounded-md border border-border hover:bg-black/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronRight size={16} />
-                        </button>
+                        <button onClick={() => setPage(old => Math.max(old - 1, 1))} disabled={page === 1} className="p-1.5 rounded-md border border-border hover:bg-black/5 disabled:opacity-50"><ChevronLeft size={16} /></button>
+                        <span className="text-sm font-medium px-2">Page {page} of {pagination.totalPages}</span>
+                        <button onClick={() => setPage(old => (pagination.totalPages > old ? old + 1 : old))} disabled={page >= pagination.totalPages} className="p-1.5 rounded-md border border-border hover:bg-black/5 disabled:opacity-50"><ChevronRight size={16} /></button>
                     </div>
                 </div>
             </div>
 
-            <TripModal
-                isOpen={isModalOpen}
-                onClose={() => setModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                tripToEdit={modalData.trip}
-                action={modalData.action}
-            />
+            {/* --- MODALS --- */}
+            <TripFormModal
+                isOpen={activeModal === 'form'}
+                onClose={closeModal}
+                tripToEdit={selectedTrip}
+                // Pass create/update mutations directly
+                onCreate={createTrip.mutateAsync}
+                onUpdate={updateTrip.mutateAsync} />
+
+            <StartTripModal
+                isOpen={activeModal === 'start'}
+                onClose={closeModal}
+                trip={selectedTrip}
+                onStart={startTrip.mutateAsync} />
+
+            <CompleteTripModal
+                isOpen={activeModal === 'complete'}
+                onClose={closeModal}
+                trip={selectedTrip}
+                onComplete={completeTrip.mutateAsync} />
         </div>
     );
 }
