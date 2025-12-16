@@ -7,7 +7,8 @@ import {
     deleteTrip,
     startTrip,
     completeTrip,
-    getDriverTrips
+    getDriverTrips,
+    downloadTripReport
 } from '../controllers/trip.controller.js';
 import isAuthenticated from '../middlewares/auth.middleware.js';
 import authorizedRoles from '../middlewares/authorize.middleware.js';
@@ -26,5 +27,6 @@ router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(TripSc
 router.delete('/:id', validateObjectId(), authorizedRoles('admin'), deleteTrip);
 router.patch('/:id/start', validateObjectId(), validate(StartTripSchema), startTrip);
 router.patch('/:id/complete', validateObjectId(), validate(CompleteTripSchema), completeTrip);
+router.get('/:id/report', validateObjectId(), downloadTripReport);
 
 export default router;

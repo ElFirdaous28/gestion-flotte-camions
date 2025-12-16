@@ -5,7 +5,7 @@ import { useAuth } from './useAuth';
 export const useTrips = ({ page = 1, limit = 10, search = '', status = '', type = '' } = {}) => {
     const axios = useAxios();
     const queryClient = useQueryClient();
-    const { user } = useAuth();    
+    const { user } = useAuth();
 
     const tripsPath = user?.role === 'admin' ? '/trips' : `/trips/driver/${user?._id}`;
 
@@ -47,6 +47,23 @@ export const useTrips = ({ page = 1, limit = 10, search = '', status = '', type 
         onSuccess: () => queryClient.invalidateQueries(['trips']),
     });
 
+    const downloadTripReport = useMutation({
+        mutationFn: async (id) => {
+            const res = await axios.get(`/trips/${id}/report`, {
+                responseType: 'blob', // important to handle PDF
+            });
+
+            // Create a download link
+            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Trip-${id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        },
+    });
+
     return {
         tripsQuery,
         createTrip,
@@ -54,5 +71,6 @@ export const useTrips = ({ page = 1, limit = 10, search = '', status = '', type 
         deleteTrip,
         startTrip,
         completeTrip,
+        downloadTripReport
     };
 };

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useTrips } from '../../hooks/useTrips';
 import TripFormModal from '../../components/modals/TripFormModal';
 import StartTripModal from '../../components/modals/StartTripModal';
-import { SquarePen, Trash2, Play, CheckCircle, Eye, Calendar, Search, Plus, Truck, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SquarePen, Trash2, Play, CheckCircle, Eye, Calendar, Search, Plus, Truck, Filter, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import CompleteTripModal from '../../components/modals/CompleteTripModal.';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Trips() {
-    const { user } = useAuth();    
+    const { user } = useAuth();
     // --- Filters ---
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
@@ -18,9 +18,9 @@ export default function Trips() {
     const [activeModal, setActiveModal] = useState(null); // 'form' | 'start' | 'complete' | null
     const [selectedTrip, setSelectedTrip] = useState(null);
 
-    const { tripsQuery, deleteTrip, createTrip, updateTrip, startTrip, completeTrip } = useTrips({ page, search, status, type });
+    const { tripsQuery, deleteTrip, createTrip, updateTrip, startTrip, completeTrip, downloadTripReport } = useTrips({ page, search, status, type });
     const trips = tripsQuery.data?.trips || [];
-    
+
     const pagination = tripsQuery.data?.pagination || { totalPages: 1, total: 0 };
     const isLoading = tripsQuery.isLoading;
 
@@ -167,7 +167,17 @@ export default function Trips() {
                                                     title="Delete">
                                                     <Trash2 size={16} />
                                                 </button>
+                                                {/* Download PDF */}
+                                                {trip.status === "completed" &&
+                                                    <button
+                                                        onClick={() => downloadTripReport.mutate(trip._id)}
+                                                        className="p-2 text-text-muted hover:text-indigo-600 hover:bg-indigo-500/10 rounded-md transition-colors"
+                                                        title="Download PDF">
+                                                        <FileText size={16} />
+                                                    </button>
+                                                }
                                             </div>
+
                                         </td>
                                     </tr>
                                 ))
