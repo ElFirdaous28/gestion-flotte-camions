@@ -70,7 +70,7 @@ export default function CompleteTripModal({ isOpen, onClose, trip, onComplete })
                         </div>
                         <div className="space-y-1">
                             <label className="text-xs font-semibold ml-1">Actual End Date</label>
-                            {/* <input type="date" {...register("actualEndDate")} className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" /> */}
+                            <input type="date" {...register("actualEndDate")} className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" />
                             <p className="text-red-500 text-[10px] ml-1">{errors.actualEndDate?.message}</p>
                         </div>
                         <div className="space-y-1">
