@@ -132,7 +132,18 @@ export const updateTire = async (req, res, next) => {
             if (!trailer) return res.status(400).json({ message: 'Referenced trailer does not exist' });
         }
 
-        Object.assign(tire, req.body);
+        tire.brand = req.body.brand;
+        tire.model = req.body.model;
+        tire.size = req.body.size;
+        tire.position = req.body.position;
+        tire.status = req.body.status;
+        tire.km = req.body.km;
+        tire.purchaseDate = req.body.purchaseDate;
+        tire.startUseDate = req.body.startUseDate;
+
+        tire.truck = req.body.truck || null;
+        tire.trailer = req.body.trailer || null;
+
         await tire.save();
 
         res.status(200).json({ message: 'Tire updated successfully', ...tire.toObject() });

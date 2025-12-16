@@ -44,25 +44,25 @@ const tripSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-tripSchema.pre('save', async function (next) {
+tripSchema.pre('save', async function () {
     // km validation
     if (this.kmEnd != null && this.kmStart != null && this.kmEnd < this.kmStart) {
-        return next(new Error('kmEnd must be greater than or equal to kmStart'));
+        throw new Error('kmEnd must be greater than or equal to kmStart');
     }
 
     // date validation
     if (this.endDate && this.startDate && this.endDate <= this.startDate) {
-        return next(new Error('endDate must be after startDate'));
+        throw new Error('endDate must be after startDate');
     }
 
     // status-based field validation
     if (this.status === 'in-progress' && this.fuelStart == null) {
-        return next(new Error('In-progress trips must have fuelStart'));
+        throw new Error('In-progress trips must have fuelStart');
     }
 
     if (this.status === 'completed') {
         if (this.fuelStart == null || this.fuelEnd == null || this.kmEnd == null || this.actualEndDate == null) {
-            return next(new Error('Completed trips must have fuelStart, fuelEnd, kmEnd, and actualEndDate'));
+            throw new Error('Completed trips must have fuelStart, fuelEnd, kmEnd, and actualEndDate');
         }
     }
 
@@ -73,6 +73,5 @@ tripSchema.pre('save', async function (next) {
         this.serialNumber = `TRIP-${parseInt(lastNumber) + 1}`;
     }
 });
-
 
 export default mongoose.model('Trip', tripSchema);

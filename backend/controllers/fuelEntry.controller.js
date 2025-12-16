@@ -3,21 +3,32 @@ import Trip from '../models/Trip.js';
 
 export const createFuelEntry = async (req, res, next) => {
     try {
-        const { trip } = req.body;
+        const { trip, invoiceSerial, amount } = req.body;
 
-        // check that trip exists
+        // check trip exists
         const foundTrip = await Trip.findById(trip);
-        if (!foundTrip)
-            return res.status(404).json({ message: 'Trip not found' });
+        if (!foundTrip) return res.status(404).json({ message: 'Trip not found' });
 
-        // trip must be in-progress
-        if (foundTrip.status !== 'in-progress')
+        // Trip must be in-progress
+        if (foundTrip.status !== 'in-progress') {
             return res.status(400).json({ message: 'Fuel entries can only be added to trips in-progress' });
+        }
 
-        // create entry
-        const fuelEntry = await FuelEntry.create(req.body);
+        // prevent duplicate invoiceSerial
+        const existingInvoice = await FuelEntry.findOne({ invoiceSerial });
+        if (existingInvoice) {
+            return res.status(400).json({ message: 'This invoice has already been used' });
+        }
+
+        // create fuel entry including invoice file path
+        const fuelEntry = await FuelEntry.create({
+            trip,
+            amount,
+            invoiceSerial,
+            invoiceFile: req.file?.path || null,
+        });
+
         res.status(201).json(fuelEntry);
-
     } catch (err) {
         next(err);
     }
@@ -44,8 +55,24 @@ export const getFuelEntry = async (req, res, next) => {
 
 export const updateFuelEntry = async (req, res, next) => {
     try {
-        const entry = await FuelEntry.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const entry = await FuelEntry.findById(req.params.id).populate('trip');
         if (!entry) return res.status(404).json({ message: 'Fuel entry not found' });
+
+        // cannot update if trip is completed
+        if (entry.trip.status === 'completed') {
+            return res.status(400).json({ message: 'Cannot update fuel entry for completed trip' });
+        }
+
+        // if new file uploaded, delete old one
+        if (req.file && entry.invoiceFile) {
+            try { fs.unlinkSync(entry.invoiceFile); } catch (err) { console.warn('Old invoice not found'); }
+            entry.invoiceFile = req.file.path;
+        }
+
+        // update fields
+        Object.assign(entry, req.body);
+        await entry.save();
+
         res.status(200).json(entry);
     } catch (err) {
         next(err);
