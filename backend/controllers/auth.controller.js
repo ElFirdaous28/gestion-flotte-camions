@@ -113,7 +113,9 @@ export const refreshToken = async (req, res) => {
 
     // remove old token and add new one
     const decodedNew = jwt.decode(newRefreshToken);
-    await RefreshToken.deleteOne({ token });
+
+    await RefreshToken.deleteOne({ user: user._id, token });
+    
     await RefreshToken.create({
       user: user._id,
       token: newRefreshToken,
