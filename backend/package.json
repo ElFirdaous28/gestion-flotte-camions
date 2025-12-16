@@ -9,7 +9,8 @@
     "start": "cross-env NODE_ENV=production node server.js",
     "seed": "cross-env NODE_ENV=development node seeders/db.seeder.js",
     "seed:prod": "cross-env NODE_ENV=production node seeders/db.seeder.js",
-    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+    "test:coverage": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --coverage --runInBand"
   },
   "keywords": [],
   "author": "",
