@@ -5,10 +5,10 @@ import {
   ChevronsRight,
   ChevronsLeft,
   Truck,
-  FileText,
   Settings,
   Calendar,
   Wrench,
+  Route,
 } from 'lucide-react';
 import { PiTireThin } from "react-icons/pi";
 import { FaTrailer } from "react-icons/fa";
@@ -26,7 +26,6 @@ function Sidebar({ mobileMenuOpen, setMobileMenuOpen }) {
     driver: [
       { title: 'Dashboard', path: '/driver/dashboard', icon: Home },
       { title: 'My Trips', path: '/driver/trips', icon: Calendar },
-      { title: 'Profile', path: '/profile', icon: Users }, // or User icon
     ],
 
     admin: [
@@ -35,10 +34,9 @@ function Sidebar({ mobileMenuOpen, setMobileMenuOpen }) {
       { title: 'Trucks', path: '/admin/trucks', icon: Truck },
       { title: 'Trailers', path: '/admin/trailers', icon: FaTrailer },
       { title: 'Tires', path: '/admin/tires', icon: PiTireThin },
-      { title: 'Trips', path: '/admin/trips', icon: Calendar },
+      { title: 'Trips', path: '/admin/trips', icon: Route },
       { title: 'Maintenance Rules', path: '/admin/maintenance/rules', icon: Settings },
       { title: 'Maintenance', path: '/admin/maintenance', icon: Wrench },
-      { title: 'Reports', path: '/admin/reports', icon: FileText },
       { title: 'Profile', path: '/profile', icon: Users }, // optional
     ],
   };

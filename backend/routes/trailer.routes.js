@@ -16,7 +16,7 @@ import validateObjectId from '../middlewares/objectId.middelware.js';
 const router = express.Router();
 router.use(isAuthenticated);
 
-router.get('/', authorizedRoles('admin'), getTrailers);
+router.get('/', getTrailers);
 router.get('/:id', validateObjectId(), getTrailer);
 router.post('/', authorizedRoles('admin'), validate(createTrailerSchema), createTrailer);
 router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(updateTrailerSchema), updateTrailer);

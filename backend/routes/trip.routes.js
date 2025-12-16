@@ -6,7 +6,8 @@ import {
     updateTrip,
     deleteTrip,
     startTrip,
-    completeTrip
+    completeTrip,
+    getDriverTrips
 } from '../controllers/trip.controller.js';
 import isAuthenticated from '../middlewares/auth.middleware.js';
 import authorizedRoles from '../middlewares/authorize.middleware.js';
@@ -18,6 +19,7 @@ const router = express.Router();
 router.use(isAuthenticated);
 
 router.get('/', authorizedRoles('admin'), getTrips);
+router.get('/driver/:driverId', getDriverTrips);
 router.get('/:id', validateObjectId(), getTrip);
 router.post('/', authorizedRoles('admin'), validate(TripSchema), createTrip);
 router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(TripSchema), updateTrip);

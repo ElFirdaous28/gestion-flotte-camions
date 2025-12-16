@@ -18,7 +18,6 @@ export const useUsers = ({ role, page = 1, limit = 10, search = '', sort = 'crea
             });
             return res.data;
         },
-        enabled: loggedUser?.role === 'admin',
         keepPreviousData: true,
     });
 

@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.use(isAuthenticated);
 
-router.get('/', authorizedRoles('admin'), getTrucks);
+router.get('/', getTrucks);
 router.get('/:id', validateObjectId(), getTruck);
 router.post('/', authorizedRoles('admin'), validate(createTruckSchema), createTruck);
 router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(updateTruckSchema), updateTruck);

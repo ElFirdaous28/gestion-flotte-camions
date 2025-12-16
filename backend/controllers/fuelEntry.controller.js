@@ -94,9 +94,6 @@ export const getFuelEntriesByTrip = async (req, res, next) => {
         const { tripId } = req.params;
 
         const entries = await FuelEntry.find({ trip: tripId });
-        if (!entries || entries.length === 0) {
-            return res.status(404).json({ message: 'No fuel entries found for this trip' });
-        }
 
         res.status(200).json(entries);
     } catch (err) {

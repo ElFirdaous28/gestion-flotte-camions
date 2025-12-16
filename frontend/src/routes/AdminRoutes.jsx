@@ -10,7 +10,6 @@ const Tires = lazy(() => import('../pages/admin/Tires'));
 const MaintenanceRules = lazy(() => import('../pages/admin/MaintenanceRules'));
 const MaintenanceRecords = lazy(() => import('../pages/admin/MaintenanceRecords'));
 const Trips = lazy(() => import('../pages/admin/Trips'));
-const CreateTrip = lazy(() => import('../pages/admin/CreateTrip'));
 
 export default function AdminRoutes() {
   return (
@@ -23,7 +22,6 @@ export default function AdminRoutes() {
       <Route path="/admin/maintenance/rules" element={<MaintenanceRules />} />
       <Route path="/admin/maintenance/" element={<MaintenanceRecords />} />
       <Route path="/admin/trips/" element={<Trips />} />
-      <Route path="/admin/trips/create" element={<CreateTrip />} />
     </Route>
   );
 }
