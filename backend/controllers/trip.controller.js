@@ -1,6 +1,8 @@
 import Trailer from '../models/Trailer.js';
 import Trip from '../models/Trip.js';
 import Truck from '../models/Truck.js';
+import FuelEntry from '../models/FuelEntry.js';
+import PDFDocument from 'pdfkit';
 import { updateTruckAndTiresKm } from '../services/updateTruckAndTiresKm.js';
 import { validateTripResources } from '../services/validateTripResources.js';
 import User from '../models/User.js';
@@ -224,5 +226,186 @@ export const getDriverTrips = async (req, res, next) => {
         });
     } catch (err) {
         next(err);
+    }
+};
+
+
+export const downloadTripReport = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Fetch Data
+        const trip = await Trip.findById(id)
+            .populate('truck')
+            .populate('trailer')
+            .populate('driver');
+
+        if (!trip) return res.status(404).json({ message: 'Trip not found' });
+
+        const fuelEntries = await FuelEntry.find({ trip: trip._id });
+        const totalRefueled = fuelEntries.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
+        // 2. Calculations
+        const kmStart = trip.kmStart || 0;
+        const kmEnd = trip.kmEnd || kmStart;
+        const distance = kmEnd - kmStart;
+
+        const fuelStart = trip.fuelStart || 0;
+        const fuelEnd = trip.fuelEnd || 0;
+        const consumptionTotal = (fuelStart + totalRefueled) - fuelEnd;
+        const avgConsumption = distance > 0 ? ((consumptionTotal / distance) * 100).toFixed(1) : 0;
+
+        const startDate = new Date(trip.startDate);
+        const endDate = trip.actualEndDate ? new Date(trip.actualEndDate) : new Date(trip.endDate);
+        const durationMs = endDate - startDate;
+        const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+
+        // Date Formatter
+        const fmtDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : '-';
+        const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+
+        // 3. Setup PDF
+        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Rapport_${trip.serialNumber}.pdf`);
+        doc.pipe(res);
+
+        // --- STYLES ---
+        const colors = {
+            primary: '#1F2937', // Dark Grey/Black for professional look
+            accent: '#17722f',  // Green accent
+            border: '#e5e7eb',
+            text: '#374151',
+            headerBg: '#f3f4f6'
+        };
+
+        let y = 40;
+
+        // --- HEADER (INVOICE STYLE) ---
+        // Left: Company Info
+        doc.fillColor(colors.accent).fontSize(20).font('Helvetica-Bold').text('FLOTTE TRANSPORT', 40, y);
+        doc.fillColor(colors.text).fontSize(10).font('Helvetica').text('123 Zone Industrielle', 40, y + 25);
+        doc.text('Casablanca, Maroc', 40, y + 38);
+        doc.text('contact@flotte.com', 40, y + 51);
+
+        // Right: Report Details
+        doc.fillColor(colors.primary).fontSize(24).font('Helvetica-Bold').text('RAPPORT DE TRAJET', 0, y, { align: 'right' });
+        doc.fillColor(colors.text).fontSize(10).font('Helvetica')
+            .text(`Réf: ${trip.serialNumber}`, 0, y + 30, { align: 'right' });
+        doc.text(`Date: ${fmtDate(new Date())}`, 0, y + 43, { align: 'right' });
+
+        y += 80;
+
+        // Separator
+        doc.moveTo(40, y).lineTo(550, y).strokeColor(colors.accent).lineWidth(2).stroke();
+        y += 20;
+
+        // --- INFO GRID (FROM / TO) ---
+        const col1 = 40;
+        const col2 = 300;
+
+        // Box 1: Vehicule & Chauffeur
+        doc.fontSize(11).font('Helvetica-Bold').fillColor(colors.primary).text('DÉTAILS VÉHICULE & CHAUFFEUR', col1, y);
+        y += 15;
+        doc.fontSize(10).font('Helvetica').fillColor(colors.text);
+        doc.text(`Chauffeur: ${trip.driver?.fullname || 'N/A'}`, col1, y);
+        doc.text(`Camion: ${trip.truck?.plateNumber} (${trip.truck?.brand})`, col1, y + 15);
+        doc.text(`Remorque: ${trip.trailer?.plateNumber || 'Aucune'}`, col1, y + 30);
+
+        // Box 2: Route
+        y -= 15; // Reset Y for second column header
+        doc.fontSize(11).font('Helvetica-Bold').fillColor(colors.primary).text('DÉTAILS DU TRAJET', col2, y);
+        y += 15;
+        doc.fontSize(10).font('Helvetica').fillColor(colors.text);
+        doc.text(`Départ: ${trip.startLocation}`, col2, y);
+        doc.text(`Arrivée: ${trip.endLocation}`, col2, y + 15);
+        doc.text(`Statut: ${trip.status.toUpperCase()}`, col2, y + 30);
+
+        y += 60;
+
+        // --- TABLE (INVOICE ITEMS) ---
+
+        // Table Header
+        const tableTop = y;
+        const colX = { desc: 50, start: 200, end: 320, total: 450 };
+
+        doc.rect(40, tableTop, 510, 25).fill(colors.headerBg);
+        doc.fillColor(colors.primary).fontSize(10).font('Helvetica-Bold');
+        doc.text('DESCRIPTION', colX.desc, tableTop + 8);
+        doc.text('DÉPART', colX.start, tableTop + 8);
+        doc.text('ARRIVÉE', colX.end, tableTop + 8);
+        doc.text('TOTAL / DIFF', colX.total, tableTop + 8);
+
+        y += 35;
+
+        // Helper to draw a row
+        const drawRow = (desc, start, end, total) => {
+            doc.fillColor(colors.text).fontSize(10).font('Helvetica');
+            doc.text(desc, colX.desc, y);
+            doc.text(start, colX.start, y);
+            doc.text(end, colX.end, y);
+            doc.font('Helvetica-Bold').text(total, colX.total, y);
+
+            // Bottom line
+            y += 15;
+            doc.moveTo(40, y).lineTo(550, y).strokeColor(colors.border).lineWidth(0.5).stroke();
+            y += 15;
+        };
+
+        // Row 1: Distance
+        drawRow('Kilométrage', `${kmStart} km`, `${kmEnd} km`, `${distance} km`);
+
+        // Row 2: Fuel
+        drawRow('Carburant (Niveau)', `${fuelStart} L`, `${fuelEnd} L`, `${consumptionTotal} L (Conso)`);
+
+        // Row 3: Time
+        const strStart = `${fmtDate(startDate)} ${fmtTime(startDate)}`;
+        const strEnd = `${fmtDate(endDate)} ${fmtTime(endDate)}`;
+        drawRow('Durée / Temps', fmtTime(startDate), fmtTime(endDate), `${durationHours} Heures`);
+
+        // --- SUMMARY / TOTALS ---
+        y += 10;
+        const summaryBoxX = 350;
+        doc.rect(summaryBoxX, y, 200, 60).fill(colors.headerBg); // Grey background for totals
+
+        doc.fillColor(colors.text).font('Helvetica').fontSize(10);
+        doc.text('Distance Totale:', summaryBoxX + 10, y + 10);
+        doc.text('Consommation:', summaryBoxX + 10, y + 25);
+        doc.font('Helvetica-Bold').text('Moyenne:', summaryBoxX + 10, y + 42);
+
+        doc.font('Helvetica-Bold');
+        doc.text(`${distance} km`, summaryBoxX + 120, y + 10, { align: 'right', width: 70 });
+        doc.text(`${consumptionTotal} L`, summaryBoxX + 120, y + 25, { align: 'right', width: 70 });
+        doc.fillColor(colors.accent).text(`${avgConsumption} L/100km`, summaryBoxX + 120, y + 42, { align: 'right', width: 70 });
+
+        y += 80;
+
+        // --- NOTES ---
+        if (trip.notes) {
+            doc.fontSize(10).font('Helvetica-Bold').fillColor(colors.primary).text('NOTES:', 40, y);
+            doc.font('Helvetica').fillColor(colors.text).text(trip.notes, 90, y);
+            y += 30;
+        }
+
+        // --- SIGNATURES (Bottom of Page) ---
+        // Push to bottom
+        const bottomY = 700;
+
+        doc.fontSize(10).fillColor(colors.text).font('Helvetica-Bold');
+
+        // Driver Sig
+        doc.text('Signature Chauffeur', 50, bottomY);
+        // Admin Sig
+        doc.text('Signature Responsable', 300, bottomY);
+
+        // Footer Text
+        doc.fontSize(8).fillColor('#9ca3af').text('Ce document est généré informatiquement et ne nécessite pas de cachet.', 40, 760, { align: 'center', width: 515 });
+
+        doc.end();
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'PDF Generation Error' });
     }
 };
