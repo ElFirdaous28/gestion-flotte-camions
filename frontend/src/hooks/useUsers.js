@@ -41,7 +41,7 @@ export const useUsers = ({ role, page = 1, limit = 10, search = '', sort = 'crea
     // update user
     const updateUser = useMutation({
         mutationFn: ({ id, data }) =>
-            axios.patch(`/users/${id}`, data, {
+            axios.put(`/users/${id}`, data, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             }),
         onSuccess: (res, variables) => {

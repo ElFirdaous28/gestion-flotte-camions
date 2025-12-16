@@ -18,7 +18,7 @@ router.post('/', authorizedRoles('admin'), validate(createUserSchema), createUse
 router.get('/', getUsers);
 router.get('/:id', validateObjectId(), authorizedRoles('admin'), getUserById);
 router.delete('/:id', validateObjectId(), ownerOrAdmin(User), deleteUser);
-router.patch('/:id', validateObjectId(), ownerOrAdmin(User), validate(updateUserSchema), uploadAvatar.single('avatar'), updateUser);
+router.put('/:id', validateObjectId(), ownerOrAdmin(User), validate(updateUserSchema), uploadAvatar.single('avatar'), updateUser);
 router.patch('/change-password/:id', validateObjectId(), isAuthenticated, validate(changePasswordSchema), changePassword);
 
 export default router;
