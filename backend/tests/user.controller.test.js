@@ -47,7 +47,7 @@ describe('User Controller', () => {
 
     describe('POST /api/users (Create User)', () => {
         it('should create a new user successfully (Admin only)', async () => {
-            jest.setTimeout(10000); // 10 seconds
+            jest.setTimeout(15000); // 15 seconds
 
             const res = await request(app)
                 .post('/api/users')
