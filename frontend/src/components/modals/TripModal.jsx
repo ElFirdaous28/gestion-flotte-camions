@@ -287,7 +287,7 @@ export default function TripModal({ isOpen, onClose, onSubmit, tripToEdit, actio
                                     <AlertCircle className="text-green-600 shrink-0" />
                                     <div className="text-sm">
                                         <p className="font-bold text-green-700">Completing Trip</p>
-                                        <p className="text-green-800/80">Enter final metrics to close this trip.</p>
+                                        <p className="text-green-700">Enter final metrics to close this trip.</p>
                                     </div>
                                 </div>
 
