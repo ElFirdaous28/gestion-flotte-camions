@@ -27,7 +27,7 @@ describe('Tire Controller', () => {
     };
 
     beforeEach(async () => {
-        // 1. Create Users
+        // create Users
         const admin = await User.create({
             fullname: 'Admin User',
             email: 'admin@tires.com',
@@ -44,7 +44,7 @@ describe('Tire Controller', () => {
         });
         driverToken = jwt.sign({ id: driver._id, role: driver.role }, JWT_SECRET, { expiresIn: '1h' });
 
-        // 2. Create Dummy Truck & Trailer for associations
+        // create Truck & Trailer for associations
         const truck = await Truck.create({
             plateNumber: 'TR-TIRE-01',
             brand: 'Volvo',
@@ -62,14 +62,11 @@ describe('Tire Controller', () => {
         });
         trailerId = trailer._id;
 
-        // 3. Create a Dummy Tire
+        // create a Tire
         const tire = await Tire.create(tireData);
         tireId = tire._id;
     });
 
-    /* =========================================================================
-       POST /api/tires (Create)
-       ========================================================================= */
     describe('POST /api/tires', () => {
         it('should create a tire linked to a truck successfully (Admin)', async () => {
             const newTire = {
@@ -113,9 +110,6 @@ describe('Tire Controller', () => {
         });
     });
 
-    /* =========================================================================
-       GET /api/tires (List & Filter)
-       ========================================================================= */
     describe('GET /api/tires', () => {
         it('should list tires successfully (Admin)', async () => {
             const res = await request(app)
@@ -127,7 +121,6 @@ describe('Tire Controller', () => {
         });
 
         it('should return 400 if both truck and trailer filters are provided', async () => {
-            // Your controller logic specifically forbids this combination
             const res = await request(app)
                 .get(`/api/tires?truck=${truckId}&trailer=${trailerId}`)
                 .set('Authorization', `Bearer ${adminToken}`);
@@ -145,12 +138,9 @@ describe('Tire Controller', () => {
         });
     });
 
-    /* =========================================================================
-       GET /api/tires/available
-       ========================================================================= */
     describe('GET /api/tires/available', () => {
         it('should return tires specifically in stock/used/needs_replacement', async () => {
-            // Check the tire created in beforeEach (status: 'stock')
+            // check the tire created in beforeEach (status: 'stock')
             const res = await request(app)
                 .get('/api/tires/available')
                 .set('Authorization', `Bearer ${driverToken}`);
@@ -161,9 +151,6 @@ describe('Tire Controller', () => {
         });
     });
 
-    /* =========================================================================
-       GET /api/tires/:id (Single)
-       ========================================================================= */
     describe('GET /api/tires/:id', () => {
         it('should return a specific tire', async () => {
             const res = await request(app)
@@ -184,12 +171,8 @@ describe('Tire Controller', () => {
         });
     });
 
-    /* =========================================================================
-       PUT /api/tires/:id (Update)
-       ========================================================================= */
+
     describe('PUT /api/tires/:id', () => {
-        // According to your routes: router.put('/:id', ... updateTire) 
-        // It does NOT have authorizedRoles('admin'), so Drivers can access it.
         it('should update tire details (Driver allowed per route def)', async () => {
             const res = await request(app)
                 .put(`/api/tires/${tireId}`)
@@ -212,9 +195,6 @@ describe('Tire Controller', () => {
         });
     });
 
-    /* =========================================================================
-       PATCH /api/tires/:id/status
-       ========================================================================= */
     describe('PATCH /api/tires/:id/status', () => {
         it('should update tire status', async () => {
             const res = await request(app)
@@ -227,9 +207,6 @@ describe('Tire Controller', () => {
         });
     });
 
-    /* =========================================================================
-       DELETE /api/tires/:id
-       ========================================================================= */
     describe('DELETE /api/tires/:id', () => {
         it('should delete tire successfully (Admin)', async () => {
             const res = await request(app)
