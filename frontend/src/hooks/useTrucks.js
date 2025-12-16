@@ -19,6 +19,7 @@ export const useTrucks = ({ page = 1, limit = 10, search = '', status = '', sort
       };
     },
     keepPreviousData: true,
+    enabled: true,
   });
 
   // get truck by id

@@ -15,7 +15,7 @@ router.use(isAuthenticated);
 
 router.get('/profile', profile);
 router.post('/', authorizedRoles('admin'), validate(createUserSchema), createUser)
-router.get('/', authorizedRoles('admin'), getUsers);
+router.get('/', getUsers);
 router.get('/:id', validateObjectId(), authorizedRoles('admin'), getUserById);
 router.delete('/:id', validateObjectId(), ownerOrAdmin(User), deleteUser);
 router.patch('/:id', validateObjectId(), ownerOrAdmin(User), validate(updateUserSchema), uploadAvatar.single('avatar'), updateUser);

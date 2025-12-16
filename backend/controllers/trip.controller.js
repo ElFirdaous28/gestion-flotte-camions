@@ -190,3 +190,39 @@ export const completeTrip = async (req, res, next) => {
         next(err);
     }
 };
+
+export const getDriverTrips = async (req, res, next) => {
+    try {
+        const { driverId } = req.params;
+        const { page = 1, limit = 10, status } = req.query;
+
+        const filter = { driver: driverId };
+        if (status) filter.status = status;
+
+        const skip = (page - 1) * limit;
+
+        const [trips, total] = await Promise.all([
+            Trip.find(filter)
+                .populate('truck', 'plateNumber brand')
+                .populate('trailer', 'plateNumber type')
+                .populate('driver', 'fullname')
+                .sort({ createdAt: -1 }) // Newest first
+                .skip(Number(skip))
+                .limit(Number(limit)),
+            Trip.countDocuments(filter)
+        ]);
+
+        res.status(200).json({
+            message: 'Driver trips fetched successfully',
+            trips,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+};

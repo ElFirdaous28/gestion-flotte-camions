@@ -4,8 +4,10 @@ import TripFormModal from '../../components/modals/TripFormModal';
 import StartTripModal from '../../components/modals/StartTripModal';
 import { SquarePen, Trash2, Play, CheckCircle, Eye, Calendar, Search, Plus, Truck, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import CompleteTripModal from '../../components/modals/CompleteTripModal.';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function Trips() {
+    const { user } = useAuth();    
     // --- Filters ---
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
@@ -18,6 +20,7 @@ export default function Trips() {
 
     const { tripsQuery, deleteTrip, createTrip, updateTrip, startTrip, completeTrip } = useTrips({ page, search, status, type });
     const trips = tripsQuery.data?.trips || [];
+    
     const pagination = tripsQuery.data?.pagination || { totalPages: 1, total: 0 };
     const isLoading = tripsQuery.isLoading;
 
@@ -138,11 +141,13 @@ export default function Trips() {
                                         <td className="px-6 py-4">{getStatusBadge(trip.status)}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex justify-center items-center gap-1 transition-opacity">
-                                                <button onClick={() => openFormModal(trip)}
-                                                    className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
-                                                    title={trip.status === 'to-do' ? "Edit" : "View"}>
-                                                    {trip.status === 'to-do' ? <SquarePen size={16} /> : <Eye size={16} />}
-                                                </button>
+                                                {user.role === "admin" &&
+                                                    <button onClick={() => openFormModal(trip)}
+                                                        className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                                                        title={trip.status === 'to-do' ? "Edit" : "View"}>
+                                                        {trip.status === 'to-do' ? <SquarePen size={16} /> : <Eye size={16} />}
+                                                    </button>
+                                                }
                                                 {trip.status === 'to-do' && (
                                                     <button onClick={() => openStartModal(trip)}
                                                         className="p-2 text-text-muted hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"

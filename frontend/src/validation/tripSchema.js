@@ -95,14 +95,23 @@ export const CompleteTripSchema = yup.object({
     fuelEnd: yup
         .number()
         .required('fuelEnd is required')
-        .min(0, 'fuelEnd must be >= 0'),
+        .min(0, 'fuelEnd must be >= 0')
+        .transform((value, originalValue) =>
+            originalValue === '' ? null : value
+        ),
     kmEnd: yup
         .number()
         .required('kmEnd is required')
-        .min(0, 'kmEnd must be >= 0'),
+        .min(0, 'kmEnd must be >= 0')
+        .transform((value, originalValue) =>
+            originalValue === '' ? null : value
+        ),
     actualEndDate: yup
         .date()
         .required('Actual End Date is required')
-        .typeError('actualEndDate must be a valid date'),
+        .typeError('actualEndDate must be a valid date')
+        .transform((value, originalValue) =>
+            originalValue === '' ? null : value
+        ),
     notes: yup.string().nullable(),
 });

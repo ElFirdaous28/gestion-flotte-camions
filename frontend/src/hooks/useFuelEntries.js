@@ -10,7 +10,7 @@ export const useFuelEntries = (tripId = null) => {
         queryKey: ['fuelEntries', tripId],
         queryFn: async () => {
             try {
-                const url = tripId ? `/fuel-entries/trip/${tripId}` : '/fuel-entries';
+                const url = tripId ? `/fuel/trip/${tripId}` : '/fuel';
                 const res = await axios.get(url);
                 return res.data || [];
             } catch (err) {
@@ -26,7 +26,7 @@ export const useFuelEntries = (tripId = null) => {
 
     // 2. Create
     const createFuelEntry = useMutation({
-        mutationFn: (formData) => axios.post('/fuel-entries', formData, {
+        mutationFn: (formData) => axios.post('/fuel', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }),
         onSuccess: () => {
@@ -36,7 +36,7 @@ export const useFuelEntries = (tripId = null) => {
 
     // 3. Update
     const updateFuelEntry = useMutation({
-        mutationFn: ({ id, formData }) => axios.put(`/fuel-entries/${id}`, formData, {
+        mutationFn: ({ id, formData }) => axios.put(`/fuel/${id}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }),
         onSuccess: () => {
@@ -46,7 +46,7 @@ export const useFuelEntries = (tripId = null) => {
 
     // 4. Delete
     const deleteFuelEntry = useMutation({
-        mutationFn: (id) => axios.delete(`/fuel-entries/${id}`),
+        mutationFn: (id) => axios.delete(`/fuel/${id}`),
         onSuccess: () => {
             queryClient.invalidateQueries(['fuelEntries']);
         },
