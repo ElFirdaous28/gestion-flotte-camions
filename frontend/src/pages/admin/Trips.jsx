@@ -68,7 +68,7 @@ export default function Trips() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-text tracking-tight">Trip Management</h2>
-                    <p className="text-muted-foreground text-sm mt-1">Schedule and monitor fleet movements.</p>
+                    <p className="text-text-muted text-sm mt-1">Schedule and monitor fleet movements.</p>
                 </div>
 
                 <button
@@ -84,7 +84,7 @@ export default function Trips() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 {/* Search */}
                 <div className="relative md:col-span-2">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
                     <input
                         type="text"
                         placeholder="Search by driver, location..."
@@ -106,7 +106,7 @@ export default function Trips() {
                         <option value="in-progress">In Progress</option>
                         <option value="completed">Completed</option>
                     </select>
-                    <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={16} />
+                    <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />
                 </div>
 
                 {/* Type Filter */}
@@ -122,7 +122,7 @@ export default function Trips() {
                         <option value="transfer">Transfer</option>
                         <option value="other">Other</option>
                     </select>
-                    <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={16} />
+                    <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />
                 </div>
             </div>
 
@@ -132,7 +132,7 @@ export default function Trips() {
                     <table className="w-full text-sm text-left">
                         <thead className="bg-primary/5 text-text border-b border-border">
                             <tr>
-                                <th className="px-6 py-4 font-semibold w-24">ID</th>
+                                <th className="px-6 py-4 font-semibold w-24">Number</th>
                                 <th className="px-6 py-4 font-semibold">Route & Date</th>
                                 <th className="px-6 py-4 font-semibold">Resources</th>
                                 <th className="px-6 py-4 font-semibold">Status</th>
@@ -141,21 +141,21 @@ export default function Trips() {
                         </thead>
                         <tbody className="divide-y divide-border">
                             {isLoading ? (
-                                <tr><td colSpan="5" className="text-center py-12 text-muted-foreground">Loading trips...</td></tr>
+                                <tr><td colSpan="5" className="text-center py-12 text-text-muted">Loading trips...</td></tr>
                             ) : trips.length === 0 ? (
-                                <tr><td colSpan="5" className="text-center py-12 text-muted-foreground">No trips found matching your filters.</td></tr>
+                                <tr><td colSpan="5" className="text-center py-12 text-text-muted">No trips found matching your filters.</td></tr>
                             ) : (
                                 trips.map((trip) => (
-                                    <tr key={trip._id} className="hover:bg-black/[0.02] transition-colors group">
-                                        <td className="px-6 py-4 font-mono text-xs text-muted-foreground">{trip.serialNumber}</td>
+                                    <tr key={trip._id} className="hover:bg-black/2 transition-colors group">
+                                        <td className="px-6 py-4 font-mono text-xs text-text-muted">{trip.serialNumber}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2 font-medium text-text">
                                                     <span className="truncate max-w-[100px]">{trip.startLocation}</span>
-                                                    <span className="text-muted-foreground">→</span>
+                                                    <span className="text-text-muted">→</span>
                                                     <span className="truncate max-w-[100px]">{trip.endLocation}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                <div className="flex items-center gap-1.5 text-xs text-text-muted">
                                                     <Calendar size={12} />
                                                     <span>{new Date(trip.startDate).toLocaleDateString()}</span>
                                                 </div>
@@ -167,31 +167,52 @@ export default function Trips() {
                                                     <Truck size={14} className="text-primary" />
                                                     <span>{trip.truck?.plateNumber || 'No Truck'}</span>
                                                 </div>
-                                                <div className="text-xs text-muted-foreground pl-5">
+                                                <div className="text-xs text-text-muted pl-5">
                                                     {trip.driver?.fullname || trip.driver?.username || 'No Driver'}
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">{getStatusBadge(trip.status)}</td>
                                         <td className="px-6 py-4">
-                                            <div className="flex justify-center items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => openModal(trip, 'update')} className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title={trip.status === 'to-do' ? "Edit" : "View"}>
+                                            <div className="flex justify-end items-center gap-1 sm:group-hover:opacity-100 transition-opacity">
+
+                                                {/* Edit / View Button */}
+                                                <button
+                                                    onClick={() => openModal(trip, 'update')}
+                                                    className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                                                    title={trip.status === 'to-do' ? "Edit" : "View"}
+                                                >
                                                     {trip.status === 'to-do' ? <SquarePen size={16} /> : <Eye size={16} />}
                                                 </button>
 
+                                                {/* Start Button (Green) */}
                                                 {trip.status === 'to-do' && (
-                                                    <button onClick={() => openModal(trip, 'start')} className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Start">
+                                                    <button
+                                                        onClick={() => openModal(trip, 'start')}
+                                                        className="p-2 text-text-muted hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"
+                                                        title="Start"
+                                                    >
                                                         <Play size={16} />
                                                     </button>
                                                 )}
 
+                                                {/* Complete Button (Blue) */}
                                                 {trip.status === 'in-progress' && (
-                                                    <button onClick={() => openModal(trip, 'complete')} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Complete">
+                                                    <button
+                                                        onClick={() => openModal(trip, 'complete')}
+                                                        className="p-2 text-text-muted hover:text-blue-600 hover:bg-blue-500/10 rounded-md transition-colors"
+                                                        title="Complete"
+                                                    >
                                                         <CheckCircle size={16} />
                                                     </button>
                                                 )}
 
-                                                <button onClick={() => deleteTrip.mutate(trip._id)} className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete">
+                                                {/* Delete Button (Red) */}
+                                                <button
+                                                    onClick={() => deleteTrip.mutate(trip._id)}
+                                                    className="p-2 text-text-muted hover:text-red-600 hover:bg-red-500/10 rounded-md transition-colors"
+                                                    title="Delete"
+                                                >
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>
@@ -205,7 +226,7 @@ export default function Trips() {
 
                 {/* Pagination Footer */}
                 <div className="px-6 py-4 border-t border-border bg-surface flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-text-muted">
                         Showing {trips.length} of {pagination.total} records
                     </span>
 

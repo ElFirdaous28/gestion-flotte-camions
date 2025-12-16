@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
 const tripSchema = new mongoose.Schema({
+
+    serialNumber: {
+        type: String,
+        unique: true,
+        index: true
+    },
+
     truck: { type: mongoose.Schema.Types.ObjectId, ref: 'Truck', required: true },
     trailer: { type: mongoose.Schema.Types.ObjectId, ref: 'Trailer', required: true },
     driver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
