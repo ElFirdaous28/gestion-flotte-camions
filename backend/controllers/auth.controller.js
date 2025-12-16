@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import RefreshToken from '../models/RefreshToken.js';
+import crypto from 'crypto';
 
 const ACCESS_TOKEN_EXP = '1d';
 const REFRESH_TOKEN_EXP = '7d';
@@ -9,13 +10,21 @@ const REFRESH_TOKEN_EXP = '7d';
 // generate access + refresh tokens
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
-    { id: user._id, role: user.role, fullname: user.fullname, email: user.email },
+    {
+      id: user._id,
+      role: user.role,
+      fullname: user.fullname,
+      email: user.email,
+    },
     process.env.JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXP }
   );
 
   const refreshToken = jwt.sign(
-    { id: user._id },
+    {
+      id: user._id,
+      jti: crypto.randomUUID(), // ✅ uniqueness
+    },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: REFRESH_TOKEN_EXP }
   );
@@ -106,7 +115,10 @@ export const refreshToken = async (req, res) => {
     );
 
     const newRefreshToken = jwt.sign(
-      { id: user._id },
+      {
+        id: user._id,
+        jti: crypto.randomUUID(),
+      },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: REFRESH_TOKEN_EXP }
     );
@@ -115,7 +127,7 @@ export const refreshToken = async (req, res) => {
     const decodedNew = jwt.decode(newRefreshToken);
 
     await RefreshToken.deleteOne({ user: user._id, token });
-    
+
     await RefreshToken.create({
       user: user._id,
       token: newRefreshToken,

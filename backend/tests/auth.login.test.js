@@ -75,7 +75,7 @@ describe('Auth Controller - Refresh Token', () => {
         // Generate a valid JWT for this user
         validRefreshToken = jwt.sign(
             { id: user._id },
-            process.env.JWT_REFRESH_SECRET || 'test_refresh_secret_key',
+            process.env.JWT_REFRESH_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -87,25 +87,32 @@ describe('Auth Controller - Refresh Token', () => {
         });
     });
 
-  it('should return new access token and set new cookie)', async () => {
-    
-    const res = await request(app)
-        .post('/api/auth/refresh')
-        .set('Cookie', [`refresh_token=${validRefreshToken}`]);
+    it('should return new access token and set new cookie)', async () => {
+        console.log('Initial token:', validRefreshToken);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('accessToken');
+        const res = await request(app)
+            .post('/api/auth/refresh')
+            .set('Cookie', [`refresh_token=${validRefreshToken}`]);
 
-    const cookies = res.headers['set-cookie'];
-    expect(cookies).toBeDefined();
-    expect(cookies[0]).toMatch(/refresh_token=/);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('accessToken');
 
-    const oldTokenInDb = await RefreshToken.findOne({ token: validRefreshToken });
-    expect(oldTokenInDb).toBeNull();
+        const cookies = res.headers['set-cookie'];
+        expect(cookies).toBeDefined();
+        expect(cookies[0]).toMatch(/refresh_token=/);
 
-    const count = await RefreshToken.countDocuments({ user: user._id });
-    expect(count).toBe(1);
-});
+        // Debug: check all tokens
+        const allTokens = await RefreshToken.find({ user: user._id });
+        console.log('All tokens for user:', allTokens);
+        console.log('Looking for token:', validRefreshToken);
+
+        const oldTokenInDb = await RefreshToken.findOne({ token: validRefreshToken });
+        console.log('Found old token:', oldTokenInDb);
+        expect(oldTokenInDb).toBeNull();
+
+        const count = await RefreshToken.countDocuments({ user: user._id });
+        expect(count).toBe(1);
+    });
     it('should return 401 if refresh token is missing', async () => {
         const res = await request(app).post('/api/auth/refresh');
         expect(res.statusCode).toBe(401);
