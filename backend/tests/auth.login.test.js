@@ -88,7 +88,6 @@ describe('Auth Controller - Refresh Token', () => {
     });
 
     it('should return new access token and set new cookie)', async () => {
-        console.log('Initial token:', validRefreshToken);
 
         const res = await request(app)
             .post('/api/auth/refresh')
@@ -103,11 +102,8 @@ describe('Auth Controller - Refresh Token', () => {
 
         // Debug: check all tokens
         const allTokens = await RefreshToken.find({ user: user._id });
-        console.log('All tokens for user:', allTokens);
-        console.log('Looking for token:', validRefreshToken);
 
         const oldTokenInDb = await RefreshToken.findOne({ token: validRefreshToken });
-        console.log('Found old token:', oldTokenInDb);
         expect(oldTokenInDb).toBeNull();
 
         const count = await RefreshToken.countDocuments({ user: user._id });
