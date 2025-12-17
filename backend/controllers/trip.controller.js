@@ -3,7 +3,7 @@ import Trip from '../models/Trip.js';
 import Truck from '../models/Truck.js';
 import FuelEntry from '../models/FuelEntry.js';
 import PDFDocument from 'pdfkit';
-import { updateTruckAndTiresKm } from '../services/updateTruckAndTiresKm.js';
+import { updateTargetKm } from '../services/updateTargetKm.js';
 import { validateTripResources } from '../services/validateTripResources.js';
 import User from '../models/User.js';
 
@@ -161,15 +161,27 @@ export const startTrip = async (req, res, next) => {
     }
 };
 
+
 export const completeTrip = async (req, res, next) => {
     try {
         const { fuelEnd, kmEnd, notes, actualEndDate } = req.body;
-        const trip = await Trip.findById(req.params.id);
-        if (!trip) return res.status(404).json({ message: 'Trip not found' });
 
-        // can only complete an in-progress trip
+        const trip = await Trip.findById(req.params.id);
+        if (!trip) {
+            return res.status(404).json({ message: 'Trip not found' });
+        }
+
+        // only in-progress trips can be completed
         if (trip.status !== 'in-progress') {
-            return res.status(400).json({ message: "Only trips with status 'in-progress' can be completed" });
+            return res.status(400).json({
+                message: "Only trips with status 'in-progress' can be completed"
+            });
+        }
+
+        // calculate distance BEFORE modifying trip
+        const distance = kmEnd - trip.kmStart;
+        if (distance < 0) {
+            return res.status(400).json({ message: 'Invalid kmEnd value' });
         }
 
         // update trip
@@ -181,17 +193,32 @@ export const completeTrip = async (req, res, next) => {
 
         await trip.save();
 
-        await Truck.findByIdAndUpdate(trip.truck, { status: 'available' });
-        await Trailer.findByIdAndUpdate(trip.trailer, { status: 'available' });
+        // free resources
+        await Promise.all([
+            Truck.findByIdAndUpdate(trip.truck, { status: 'available' }),
+            Trailer.findByIdAndUpdate(trip.trailer, { status: 'available' })
+        ]);
 
-        const distance = kmEnd - trip.kmStart; // trip distance
-        await updateTruckAndTiresKm(trip.truck, distance);
+        // 🔥 update KM consistently
+        await Promise.all([
+            updateTargetKm({
+                targetType: 'truck',
+                targetId: trip.truck,
+                km: distance
+            }),
+            updateTargetKm({
+                targetType: 'trailer',
+                targetId: trip.trailer,
+                km: distance
+            })
+        ]);
+
         res.status(200).json(trip);
-
     } catch (err) {
         next(err);
     }
 };
+
 
 export const getDriverTrips = async (req, res, next) => {
     try {
