@@ -1,11 +1,22 @@
 import mongoose from 'mongoose';
 import MaintenanceRecord from '../models/MaintenanceRecord.js';
 import Tire from '../models/Tire.js';
+import { updateTargetKm } from '../services/updateTargetKm.js';
 
 export const createMaintenanceRecord = async (req, res, next) => {
     try {
         const record = await MaintenanceRecord.create(req.body);
-        res.status(201).json({ message: 'Maintenance record created successfully', record });
+
+        await updateTargetKm({
+            targetType: record.targetType,
+            targetId: record.targetId,
+            km: record.kmAtMaintenance
+        });
+
+        res.status(201).json({
+            message: 'Maintenance record created successfully',
+            record
+        });
     } catch (err) {
         if (err.code === 11000) {
             return res.status(400).json({
@@ -81,13 +92,34 @@ export const getMaintenanceRecord = async (req, res, next) => {
 
 export const updateMaintenanceRecord = async (req, res, next) => {
     try {
+        const oldRecord = await MaintenanceRecord.findById(req.params.id);
+        if (!oldRecord) {
+            return res.status(404).json({ message: 'Maintenance record not found' });
+        }
+
         const record = await MaintenanceRecord.findByIdAndUpdate(
             req.params.id,
             req.body,
             { new: true, runValidators: true, context: 'query' }
         );
-        if (!record) return res.status(404).json({ message: 'Maintenance record not found' });
-        res.json({ message: 'Maintenance record updated successfully', record });
+
+        // adjust km difference
+        const oldKm = oldRecord.kmAtMaintenance || 0;
+        const newKm = record.kmAtMaintenance || 0;
+        const diff = newKm - oldKm;
+
+        if (diff !== 0) {
+            await updateTargetKm({
+                targetType: record.targetType,
+                targetId: record.targetId,
+                km: diff
+            });
+        }
+
+        res.json({
+            message: 'Maintenance record updated successfully',
+            record
+        });
     } catch (err) {
         if (err.code === 11000) {
             return res.status(400).json({
@@ -97,6 +129,7 @@ export const updateMaintenanceRecord = async (req, res, next) => {
         next(err);
     }
 };
+
 
 export const deleteMaintenanceRecord = async (req, res, next) => {
     try {
