@@ -20,8 +20,8 @@ router.use(isAuthenticated);
 
 router.get('/', authorizedRoles('admin'), getFuelEntries);
 router.get('/:id', validateObjectId(), getFuelEntry);
-router.post('/', authorizedRoles('admin'),uploadInvoice.single('invoiceFile'), validate(FuelEntrySchema), createFuelEntry);
-router.put('/:id', validateObjectId(), authorizedRoles('admin'), validate(FuelEntrySchema), uploadInvoice.single('invoiceFile'), updateFuelEntry);
+router.post('/', authorizedRoles('admin'), uploadInvoice.single('invoiceFile'), validate(FuelEntrySchema), createFuelEntry);
+router.put('/:id', validateObjectId(), authorizedRoles('admin'), uploadInvoice.single('invoiceFile'), validate(FuelEntrySchema), updateFuelEntry);
 router.delete('/:id', validateObjectId(), authorizedRoles('admin'), deleteFuelEntry);
 router.get('/trip/:tripId', validateObjectId('tripId'), getFuelEntriesByTrip);
 
