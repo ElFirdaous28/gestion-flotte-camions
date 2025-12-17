@@ -26,7 +26,6 @@ export const sendTemplateEmail = async ({ to, subject, templatePath, context }) 
             html,
         });
 
-        console.log('Email sent: %s', info.messageId);
     } catch (error) {
         console.error('Email error:', error);
         throw new Error('Unable to send email');
